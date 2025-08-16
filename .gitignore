@@ -1,0 +1,25 @@
+# Секретные данные
+secrets/
+*.key
+*.pem
+*.password
+*.secret
+*-secrets.nix
+
+# Бэкапы
+*.backup
+*.bak
+*.swp
+*~
+
+# Временные файлы
+result
+result-*
+.direnv/
+
+# Кэш
+.cache/
+
+# Если не хочешь трекать hardware-configuration.nix
+# (но лучше его оставить для полной воспроизводимости)
+# hardware-configuration.nix
