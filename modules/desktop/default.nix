@@ -6,5 +6,6 @@
     ./fonts.nix
     ./greetd.nix
     ./hardware.nix
+    ./themes.nix
   ];
 }

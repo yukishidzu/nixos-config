@@ -5,6 +5,10 @@
     ./hyprland.nix
     ./waybar.nix
     ./mako.nix
+    ./eww.nix
+    ./swww.nix
+    ./screenshot.nix
+    ./keybinds.nix
   ];
 
   # Пакеты для Hyprland экосистемы

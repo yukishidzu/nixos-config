@@ -16,9 +16,13 @@
     # };
     
     catppuccin.url = "github:catppuccin/nix";
+    
+    # Дополнительные flake для красивых утилит
+    nix-colors.url = "github:misterio77/nix-colors";
+    spicetify-nix.url = "github:the-argus/spicetify-nix";
   };
 
-  outputs = { self, nixpkgs, home-manager, catppuccin, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, catppuccin, nix-colors, spicetify-nix, ... }@inputs:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};

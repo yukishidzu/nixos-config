@@ -3,6 +3,8 @@
 {
   imports = [
     inputs.catppuccin.homeModules.catppuccin
+    inputs.nix-colors.homeManagerModules.default
+    inputs.spicetify-nix.homeManagerModule
     ./home/shell
     ./home/hyprland
     ./home/programs
@@ -18,6 +20,12 @@
   catppuccin = {
     enable = true;
     flavor = "mocha";
+  };
+
+  # Nix Colors для дополнительных тем
+  nix-colors = {
+    enable = true;
+    scheme = "catppuccin-mocha";
   };
 
   # Разрешить Home Manager управлять собой
