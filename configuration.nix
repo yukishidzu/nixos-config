@@ -1,16 +1,12 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, pkgs-unstable, ... }:
 
-let
-  # Импортируем Home Manager
-  home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/release-25.05.tar.gz";
-in
 {
   ########################################################
   # Импорт выявленного железа (создан installer‑ом)
   ########################################################
   imports = [ 
     ./hardware-configuration.nix
-    (import "${home-manager}/nixos")
+    # Home Manager теперь подключается через flake.nix
   ];
 
   ########################################################
@@ -21,7 +17,9 @@ in
 
   networking = {
     hostName              = "yukishidzu";
-    networkmanager.enable = true;q
+    networkmanager.enable = true;  # Исправлена ошибка с 'q'
+    # Отключаем dhcpcd т.к. используем NetworkManager
+    useDHCP = false;
   };
 
   ########################################################
@@ -48,8 +46,10 @@ in
   services.xserver = {
     enable       = true;               # только ввод + драйвер
     videoDrivers = [ "amdgpu" ];       # встроенная Radeon (Ryzen 7xxx)
-    xkb.layout   = "us,ru";
-    xkb.options  = "grp:win_space_toggle";
+    xkb = {
+      layout   = "us,ru";
+      options  = "grp:win_space_toggle";
+    };
   };
 
   ########################################################
@@ -124,6 +124,7 @@ in
     noto-fonts-cjk-sans
     noto-fonts-emoji
   ];
+
   ########################################################
   # Базовый набор СИСТЕМНЫХ утилит (минимум)
   ########################################################
@@ -136,6 +137,7 @@ in
     polkit_gnome  # аутентификация
     qt5.qtwayland # Qt поддержка Wayland
     qt6.qtwayland
+    xdg-utils     # Для корректной работы XDG
   ];
 
   ########################################################
@@ -161,14 +163,15 @@ in
 
   # Безопасность
   security.sudo.wheelNeedsPassword = true;
-
-  ########################################################
-  # Home Manager конфигурация
-  ########################################################
-  home-manager = {
-    useGlobalPkgs = true;
-    useUserPackages = true;
-    users.yukishidzu = import ./home.nix;
+  
+  # Полики безопасности
+  security.polkit.enable = true;
+  
+  # XDG Desktop Portal для Hyprland
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
+    config.common.default = "*";
   };
 
   ########################################################
