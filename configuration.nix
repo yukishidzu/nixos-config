@@ -1,115 +1,178 @@
-{ config, pkgs, lib, inputs, ... }:
+{ config, pkgs, lib, ... }:
 
+let
+  # Импортируем Home Manager
+  home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/release-25.05.tar.gz";
+in
 {
-  imports = [
+  ########################################################
+  # Импорт выявленного железа (создан installer‑ом)
+  ########################################################
+  imports = [ 
     ./hardware-configuration.nix
-    ./modules/system
-    ./modules/desktop
-    ./modules/users
+    (import "${home-manager}/nixos")
   ];
 
-  # Catppuccin theme для системы
-  catppuccin = {
-    enable = true;
-    flavor = "mocha";
-  };
+  ########################################################
+  # Загрузка и базовая инициализация
+  ########################################################
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
 
-  # Настройки Nix и Flakes (ВАЖНО!)
-  nix = {
-    settings = {
-      experimental-features = [ "nix-command" "flakes" ];
-      auto-optimise-store = true;
-      substituters = [
-        "https://cache.nixos.org/"
-        "https://hyprland.cachix.org"
-        "https://nix-community.cachix.org"
-        "https://cursor.cachix.org"
-      ];
-      trusted-public-keys = [
-        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-        "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
-        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-        "cursor.cachix.org-1:Un9sxK6iB2Lb9o6Qyd74y0hHnRACJZj17K3BQMnif9A="
-      ];
-    };
-    gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 7d";
-    };
-  };
-
-  # Загрузчик
-  boot = {
-    loader = {
-      systemd-boot.enable = true;
-      efi.canTouchEfiVariables = true;
-    };
-    supportedFilesystems = [ "ntfs" "vfat" "ext4" "btrfs" ];
-    kernelParams = [ "quiet" "splash" "nvidia-drm.modeset=1" ];
-    kernel.sysctl = {
-      "vm.swappiness" = 10;
-      "net.core.rmem_max" = 134217728;
-      "net.core.wmem_max" = 134217728;
-    };
-  };
-
-  # Сеть
   networking = {
-    hostName = "yukishidzu";
-    networkmanager.enable = true;
-    firewall = {
-      enable = true;
-      allowedTCPPorts = [ 22 80 443 8080 ];
-      allowedUDPPorts = [ 53 67 68 ];
-    };
+    hostName              = "yukishidzu";
+    networkmanager.enable = true;q
   };
 
-  # Системные настройки
+  ########################################################
+  # Локализация, время, TTY‑шрифт
+  ########################################################
+  i18n = {
+    defaultLocale    = "en_US.UTF-8";
+    supportedLocales = [
+      "en_US.UTF-8/UTF-8"
+      "ru_RU.UTF-8/UTF-8"
+    ];
+  };
+
   time.timeZone = "Europe/Moscow";
-  i18n.defaultLocale = "en_US.UTF-8";
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "ru_RU.UTF-8";
-    LC_IDENTIFICATION = "ru_RU.UTF-8";
-    LC_MEASUREMENT = "ru_RU.UTF-8";
-    LC_MONETARY = "ru_RU.UTF-8";
-    LC_NAME = "ru_RU.UTF-8";
-    LC_NUMERIC = "ru_RU.UTF-8";
-    LC_PAPER = "ru_RU.UTF-8";
-    LC_TELEPHONE = "ru_RU.UTF-8";
-    LC_TIME = "ru_RU.UTF-8";
+
+  console = {
+    font         = "Lat2-Terminus16";  # читаемая кириллица в TTY
+    useXkbConfig = true;               # TTY берёт те же XKB‑настройки
   };
 
-  # Безопасность
-  security = {
-    auditd.enable = true;
-    audit.enable = true;
-    doas.enable = false;
-    sudo.wheelNeedsPassword = true;
-    polkit.enable = true;
+  ########################################################
+  # XKB-раскладка/драйвер (нужен Xwayland в Hyprland)
+  ########################################################
+  services.xserver = {
+    enable       = true;               # только ввод + драйвер
+    videoDrivers = [ "amdgpu" ];       # встроенная Radeon (Ryzen 7xxx)
+    xkb.layout   = "us,ru";
+    xkb.options  = "grp:win_space_toggle";
   };
 
-  # Сервисы
-  services = {
-    openssh = {
-      enable = true;
-      settings = {
-        PermitRootLogin = "no";
-        PasswordAuthentication = false;
-        PubkeyAuthentication = true;
+  ########################################################
+  # Bluetooth
+  ########################################################
+  hardware.bluetooth.enable = true;
+  services.blueman.enable   = true;
+
+  ########################################################
+  # Аудио — PipeWire (+ эмуляция PulseAudio API)
+  ########################################################
+  services.pulseaudio.enable = false;
+  security.rtkit.enable      = true;
+
+  services.pipewire = {
+    enable            = true;
+    alsa.enable       = true;
+    alsa.support32Bit = true;
+    pulse.enable      = true;  # legacy‑клиенты
+    jack.enable       = false;
+  };
+
+  ########################################################
+  # Hyprland + Waybar + greetd/tuigreet
+  ########################################################
+  programs.hyprland = {
+    enable          = true;
+    withUWSM        = true;   # systemd‑user integration
+    xwayland.enable = true;
+  };
+
+  programs.waybar.enable = true;
+
+  services.greetd = {
+    enable   = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland";
+        user    = "greeter";
       };
     };
-    fwupd.enable = true;
-    thermald.enable = true;
-    power-profiles-daemon.enable = true;
-    blueman.enable = true;
-    printing.enable = true;
-    avahi = {
-      enable = true;
-      nssmdns4 = true;
-    };
   };
 
-  # Версия системы (НЕ изменять при обновлениях!)
+  ########################################################
+  # Пользователь (Fish + Starship)
+  ########################################################
+  users.users.yukishidzu = {
+    isNormalUser = true;
+    shell        = pkgs.fish;
+    extraGroups  = [ "wheel" "networkmanager" "audio" "video" "bluetooth" ];
+  };
+
+  programs.fish = {
+    enable = true;
+    interactiveShellInit = ''
+      # FZF в подсказках
+      set -gx FZF_DEFAULT_OPTS "--height=40% --layout=reverse"
+      # Красивый prompt
+      starship init fish | source
+    '';
+  };
+
+  programs.starship.enable = true;
+
+  ########################################################
+  # Шрифты (новая схема nerd‑fonts в 25.05)
+  ########################################################
+  fonts.packages = with pkgs; [
+    nerd-fonts.jetbrains-mono      # основной моношрифт
+    nerd-fonts.symbols-only        # powerline/dev‑иконки
+    noto-fonts
+    noto-fonts-cjk-sans
+    noto-fonts-emoji
+  ];
+  ########################################################
+  # Базовый набор СИСТЕМНЫХ утилит (минимум)
+  ########################################################
+  environment.systemPackages = with pkgs; [
+    ## Базовые системные утилиты
+    git          wget          curl          
+    pciutils     usbutils      brightnessctl
+    
+    ## Необходимые для Hyprland
+    polkit_gnome  # аутентификация
+    qt5.qtwayland # Qt поддержка Wayland
+    qt6.qtwayland
+  ];
+
+  ########################################################
+  # Энергосбережение для ноутбука
+  ########################################################
+  services.tlp.enable = true;
+  powerManagement.cpuFreqGovernor = "schedutil";
+
+  ########################################################
+  # Дополнительные настройки для ноутбука
+  ########################################################
+  # Поддержка тачпада
+  services.libinput.enable = true;
+  
+  # Автоматическое подключение к сети
+  systemd.services.NetworkManager-wait-online.enable = false;
+  
+  # Поддержка NTFS для работы с Windows разделами
+  boot.supportedFilesystems = [ "ntfs" ];
+
+  # Включение zram для экономии памяти
+  zramSwap.enable = true;
+
+  # Безопасность
+  security.sudo.wheelNeedsPassword = true;
+
+  ########################################################
+  # Home Manager конфигурация
+  ########################################################
+  home-manager = {
+    useGlobalPkgs = true;
+    useUserPackages = true;
+    users.yukishidzu = import ./home.nix;
+  };
+
+  ########################################################
+  # Версия состояния системы — НЕ меняй при апгрейде!
+  ########################################################
   system.stateVersion = "25.05";
 }
