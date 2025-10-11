@@ -1,181 +1,159 @@
-{ config, pkgs, lib, inputs, pkgs-unstable, ... }:
+{ config, pkgs, lib, inputs, pkgs-unstable, hardware, ... }:
 
 {
-  ########################################################
-  # Импорт выявленного железа (создан installer‑ом)
-  ########################################################
   imports = [ 
     ./hardware-configuration.nix
-    # Home Manager теперь подключается через flake.nix
   ];
 
-  ########################################################
-  # Загрузка и базовая инициализация
-  ########################################################
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
-  networking = {
-    hostName              = "yukishidzu";
-    networkmanager.enable = true;  # Исправлена ошибка с 'q'
-    # Отключаем dhcpcd т.к. используем NetworkManager
-    useDHCP = false;
+  boot = {
+    loader = {
+      systemd-boot = {
+        enable = true;
+        editor = false;
+        consoleMode = "auto";
+      };
+      efi.canTouchEfiVariables = true;
+      timeout = 2;
+    };
+    initrd = {
+      systemd.enable = true;
+      verbose = false;
+      compressor = "zstd";
+    };
   };
 
-  ########################################################
-  # Локализация, время, TTY‑шрифт
-  ########################################################
+  networking = {
+    hostName = "yukishidzu";
+    networkmanager.enable = true;
+    useDHCP = false;
+    kernel.sysctl = {
+      "net.core.default_qdisc" = "fq_codel";
+      "net.ipv4.tcp_congestion_control" = "bbr";
+    };
+  };
+
   i18n = {
-    defaultLocale    = "en_US.UTF-8";
+    defaultLocale = "en_US.UTF-8";
     supportedLocales = [
       "en_US.UTF-8/UTF-8"
       "ru_RU.UTF-8/UTF-8"
     ];
+    extraLocaleSettings = {
+      LC_ADDRESS = "ru_RU.UTF-8";
+      LC_IDENTIFICATION = "ru_RU.UTF-8";
+      LC_MEASUREMENT = "ru_RU.UTF-8";
+      LC_MONETARY = "ru_RU.UTF-8";
+      LC_NAME = "ru_RU.UTF-8";
+      LC_NUMERIC = "en_US.UTF-8";
+      LC_PAPER = "ru_RU.UTF-8";
+      LC_TELEPHONE = "ru_RU.UTF-8";
+      LC_TIME = "ru_RU.UTF-8";
+    };
   };
 
   time.timeZone = "Europe/Moscow";
 
   console = {
-    font         = "Lat2-Terminus16";  # читаемая кириллица в TTY
-    useXkbConfig = true;               # TTY берёт те же XKB‑настройки
+    font = "Lat2-Terminus16";
+    useXkbConfig = true;
+    earlySetup = true;
   };
 
-  ########################################################
-  # XKB-раскладка/драйвер (нужен Xwayland в Hyprland)
-  ########################################################
   services.xserver = {
-    enable       = true;               # только ввод + драйвер
-    videoDrivers = [ "amdgpu" ];       # встроенная Radeon (Ryzen 7xxx)
+    enable = true;
+    videoDrivers = lib.mkDefault [ "amdgpu" "intel" "nouveau" "modesetting" ];
     xkb = {
-      layout   = "us,ru";
-      options  = "grp:win_space_toggle";
+      layout = "us,ru";
+      options = "grp:win_space_toggle";
     };
   };
 
-  ########################################################
-  # Bluetooth
-  ########################################################
   hardware.bluetooth.enable = true;
-  services.blueman.enable   = true;
+  services.blueman.enable = true;
 
-  ########################################################
-  # Аудио — PipeWire (+ эмуляция PulseAudio API)
-  ########################################################
   services.pulseaudio.enable = false;
-  security.rtkit.enable      = true;
+  security.rtkit.enable = true;
 
   services.pipewire = {
-    enable            = true;
-    alsa.enable       = true;
+    enable = true;
+    alsa.enable = true;
     alsa.support32Bit = true;
-    pulse.enable      = true;  # legacy‑клиенты
-    jack.enable       = false;
+    pulse.enable = true;
+    jack.enable = false;
+    wireplumber.enable = true;
   };
 
-  ########################################################
-  # Hyprland + Waybar + greetd/tuigreet
-  ########################################################
   programs.hyprland = {
-    enable          = true;
-    withUWSM        = true;   # systemd‑user integration
+    enable = true;
+    withUWSM = true;
     xwayland.enable = true;
   };
 
   programs.waybar.enable = true;
 
   services.greetd = {
-    enable   = true;
-    settings = {
-      default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland";
-        user    = "greeter";
-      };
+    enable = true;
+    settings.default_session = {
+      command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --remember --cmd Hyprland";
+      user = "greeter";
     };
   };
 
-  ########################################################
-  # Пользователь (Fish + Starship)
-  ########################################################
   users.users.yukishidzu = {
     isNormalUser = true;
-    shell        = pkgs.fish;
-    extraGroups  = [ "wheel" "networkmanager" "audio" "video" "bluetooth" ];
+    shell = pkgs.bash;
+    extraGroups = [ "wheel" "networkmanager" "audio" "video" "bluetooth" "input" ];
   };
 
-  programs.fish = {
-    enable = true;
-    interactiveShellInit = ''
-      # FZF в подсказках
-      set -gx FZF_DEFAULT_OPTS "--height=40% --layout=reverse"
-      # Красивый prompt
-      starship init fish | source
-    '';
-  };
-
-  programs.starship.enable = true;
-
-  ########################################################
-  # Шрифты (новая схема nerd‑fonts в 25.05)
-  ########################################################
-  fonts.packages = with pkgs; [
-    nerd-fonts.jetbrains-mono      # основной моношрифт
-    nerd-fonts.symbols-only        # powerline/dev‑иконки
-    noto-fonts
-    noto-fonts-cjk-sans
-    noto-fonts-emoji
-  ];
-
-  ########################################################
-  # Базовый набор СИСТЕМНЫХ утилит (минимум)
-  ########################################################
   environment.systemPackages = with pkgs; [
-    ## Базовые системные утилиты
-    git          wget          curl          
-    pciutils     usbutils      brightnessctl
-    
-    ## Необходимые для Hyprland
-    polkit_gnome  # аутентификация
-    qt5.qtwayland # Qt поддержка Wayland
-    qt6.qtwayland
-    xdg-utils     # Для корректной работы XDG
+    git wget curl rsync
+    pciutils usbutils lshw lm_sensors acpi
+    polkit_gnome xdg-utils xdg-user-dirs
+    qt5.qtwayland qt6.qtwayland libsForQt5.qt5ct qt6Packages.qt6ct
+    ffmpeg-full
   ];
 
-  ########################################################
-  # Энергосбережение для ноутбука
-  ########################################################
-  services.tlp.enable = true;
-  powerManagement.cpuFreqGovernor = "schedutil";
+  environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
+    MOZ_ENABLE_WAYLAND = "1";
+    QT_QPA_PLATFORM = "wayland;xcb";
+    GDK_BACKEND = "wayland,x11";
+    SDL_VIDEODRIVER = "wayland";
+    CLUTTER_BACKEND = "wayland";
+  };
 
-  ########################################################
-  # Дополнительные настройки для ноутбука
-  ########################################################
-  # Поддержка тачпада
-  services.libinput.enable = true;
-  
-  # Автоматическое подключение к сети
-  systemd.services.NetworkManager-wait-online.enable = false;
-  
-  # Поддержка NTFS для работы с Windows разделами
-  boot.supportedFilesystems = [ "ntfs" ];
-
-  # Включение zram для экономии памяти
-  zramSwap.enable = true;
-
-  # Безопасность
-  security.sudo.wheelNeedsPassword = true;
-  
-  # Полики безопасности
-  security.polkit.enable = true;
-  
-  # XDG Desktop Portal для Hyprland
   xdg.portal = {
     enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
-    config.common.default = "*";
+    wlr.enable = true;
+    extraPortals = with pkgs; [ xdg-desktop-portal-hyprland xdg-desktop-portal-gtk ];
+    config.common.default = [ "hyprland" "gtk" ];
   };
 
-  ########################################################
-  # Версия состояния системы — НЕ меняй при апгрейде!
-  ########################################################
+  services.libinput.enable = true;
+
+  boot.supportedFilesystems = [ "ntfs" "exfat" ];
+
+  zramSwap = {
+    enable = true;
+    algorithm = "zstd";
+    memoryPercent = 25;
+  };
+
+  security = {
+    sudo.wheelNeedsPassword = true;
+    polkit.enable = true;
+  };
+
+  fonts.packages = with pkgs; [
+    nerd-fonts.jetbrains-mono
+    nerd-fonts.symbols-only
+    noto-fonts
+    noto-fonts-cjk
+    noto-fonts-emoji
+    inter
+    roboto
+    liberation_ttf
+  ];
+
   system.stateVersion = "25.05";
 }
