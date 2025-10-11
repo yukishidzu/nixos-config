@@ -1,18 +1,10 @@
 { config, pkgs, lib, inputs, pkgs-unstable, ... }:
 
 {
-  # Hyprland конфигурация через Home Manager
   wayland.windowManager.hyprland = {
     enable = true;
-    
-    # Основная конфигурация
     settings = {
-      # Мониторы
-      monitor = [
-        ",preferred,auto,1"
-      ];
-      
-      # Переменные окружения
+      monitor = [ ",preferred,auto,1" ];
       env = [
         "XCURSOR_SIZE,24"
         "QT_QPA_PLATFORMTHEME,qt6ct"
@@ -21,8 +13,6 @@
         "SDL_VIDEODRIVER,wayland"
         "CLUTTER_BACKEND,wayland"
       ];
-      
-      # Основные настройки
       general = {
         gaps_in = 5;
         gaps_out = 10;
@@ -32,30 +22,14 @@
         layout = "dwindle";
         allow_tearing = false;
       };
-      
-      # Декорации
       decoration = {
         rounding = 10;
-        
-        blur = {
-          enabled = true;
-          size = 3;
-          passes = 1;
-          vibrancy = 0.1696;
-        };
-        
-        drop_shadow = true;
-        shadow_range = 4;
-        shadow_render_power = 3;
-        "col.shadow" = "rgba(1a1a1aee)";
+        blur = { enabled = true; size = 3; passes = 1; vibrancy = 0.1696; };
+        drop_shadow = true; shadow_range = 4; shadow_render_power = 3; "col.shadow" = "rgba(1a1a1aee)";
       };
-      
-      # Анимации
       animations = {
         enabled = true;
-        
         bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
-        
         animation = [
           "windows, 1, 7, myBezier"
           "windowsOut, 1, 7, default, popin 80%"
@@ -65,46 +39,16 @@
           "workspaces, 1, 6, default"
         ];
       };
-      
-      # Layout настройки
-      dwindle = {
-        pseudotile = true;
-        preserve_split = true;
-      };
-      
-      # Мастер layout
-      master = {
-        new_status = "master";
-      };
-      
-      # Жесты
-      gestures = {
-        workspace_swipe = false;
-      };
-      
-      # Различные настройки
-      misc = {
-        force_default_wallpaper = 0;
-        disable_hyprland_logo = false;
-      };
-      
-      # Ввод
+      dwindle = { pseudotile = true; preserve_split = true; };
+      gestures.workspace_swipe = false;
+      misc = { force_default_wallpaper = 0; disable_hyprland_logo = false; };
       input = {
-        kb_layout = "us,ru";
-        kb_options = "grp:win_space_toggle";
-        
+        kb_layout = "us,ru"; kb_options = "grp:win_space_toggle";
         follow_mouse = 1;
-        
-        touchpad = {
-          natural_scroll = false;
-        };
-        
+        touchpad = { natural_scroll = true; };  # удобство по умолчанию
         sensitivity = 0;
       };
-      
-      # Горячие клавиши
       bind = [
-        # Основные
         "SUPER, Q, killactive,"
         "SUPER, M, exit,"
         "SUPER, E, exec, nautilus"
@@ -113,14 +57,10 @@
         "SUPER, P, pseudo,"
         "SUPER, J, togglesplit,"
         "SUPER, Return, exec, kitty"
-        
-        # Перемещение фокуса
         "SUPER, left, movefocus, l"
         "SUPER, right, movefocus, r"
         "SUPER, up, movefocus, u"
         "SUPER, down, movefocus, d"
-        
-        # Рабочие столы
         "SUPER, 1, workspace, 1"
         "SUPER, 2, workspace, 2"
         "SUPER, 3, workspace, 3"
@@ -131,8 +71,6 @@
         "SUPER, 8, workspace, 8"
         "SUPER, 9, workspace, 9"
         "SUPER, 0, workspace, 10"
-        
-        # Перемещение окон на рабочие столы
         "SUPER SHIFT, 1, movetoworkspace, 1"
         "SUPER SHIFT, 2, movetoworkspace, 2"
         "SUPER SHIFT, 3, movetoworkspace, 3"
@@ -143,48 +81,12 @@
         "SUPER SHIFT, 8, movetoworkspace, 8"
         "SUPER SHIFT, 9, movetoworkspace, 9"
         "SUPER SHIFT, 0, movetoworkspace, 10"
-        
-        # Скролл рабочих столов
-        "SUPER, mouse_down, workspace, e+1"
-        "SUPER, mouse_up, workspace, e-1"
-        
-        # Скриншоты
         ", Print, exec, grim -g \"$(slurp)\" - | wl-copy"
         "SHIFT, Print, exec, grim - | wl-copy"
       ];
-      
-      # Перемещение окон мышью
-      bindm = [
-        "SUPER, mouse:272, movewindow"
-        "SUPER, mouse:273, resizewindow"
-      ];
-      
-      # Автозапуск
-      exec-once = [
-        "waybar"
-        "swww init"
-        "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
-      ];
+      bindm = [ "SUPER, mouse:272, movewindow" "SUPER, mouse:273, resizewindow" ];
+      exec-once = [ "waybar" "swww init" "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1" ];
     };
   };
-  
-  # Дополнительные пакеты для Hyprland
-  home.packages = with pkgs; [
-    # Скриншоты и утилиты Wayland
-    grim
-    slurp
-    wl-clipboard
-    
-    # Обои
-    swww
-    
-    # Launcher
-    wofi
-    
-    # Файловый менеджер
-    nautilus
-    
-    # Терминал
-    kitty
-  ];
+  home.packages = with pkgs; [ grim slurp wl-clipboard swww wofi nautilus kitty ];
 }
