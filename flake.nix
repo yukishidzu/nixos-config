@@ -17,6 +17,12 @@
     # Темы Catppuccin
     catppuccin.url = "github:catppuccin/nix";
     
+    # Nix Colors для дополнительных тем
+    nix-colors.url = "github:misterio77/nix-colors";
+    
+    # Spicetify для кастомизации Spotify
+    spicetify-nix.url = "github:the-argus/spicetify-nix";
+    
     # Hyprland (раскомментируй если хочешь свежайшую версию)
     # hyprland = {
     #   url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
@@ -24,7 +30,7 @@
     # };
   };
   
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, catppuccin, ... }@inputs:
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, catppuccin, nix-colors, spicetify-nix, ... }@inputs:
     let
       system = "x86_64-linux";
       
@@ -74,7 +80,7 @@
                 useGlobalPkgs = true;
                 useUserPackages = true;
                 
-                # Передаём unstable в Home Manager
+                # Передаём все inputs в Home Manager
                 extraSpecialArgs = { 
                   inherit inputs pkgs-unstable;
                 };
@@ -92,6 +98,8 @@
                   experimental-features = [ "nix-command" "flakes" ];
                   # Оптимизация хранилища
                   auto-optimise-store = true;
+                  # Доверенные пользователи для binary cache
+                  trusted-users = [ "root" "yukishidzu" ];
                 };
                 
                 # Автоматическая сборка мусора
@@ -115,6 +123,7 @@
           nixpkgs-fmt
           nil  # LSP для Nix
           git
+          home-manager  # Для удобной работы с HM
         ];
         
         shellHook = ''
@@ -122,6 +131,7 @@
           echo "📝 nix fmt - форматировать код"
           echo "🔨 nix flake check - проверить конфигурацию"
           echo "🔄 sudo nixos-rebuild switch --flake .#yukishidzu - применить"
+          echo "🏠 home-manager switch --flake .#yukishidzu - применить HM"
         '';
       };
     };
