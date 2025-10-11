@@ -3,28 +3,17 @@
 {
   # Основные программы
   home.packages = with pkgs; [
-    # Браузеры
     firefox
-    
-    # Редакторы кода (из unstable для свежих версий)
   ] ++ (with pkgs-unstable; [
     cursor
     vscodium
   ]) ++ (with pkgs; [
-    
-    # Мессенджеры
     telegram-desktop
     discord
-    
-    # Медиа
     vlc
     spotify
-    
-    # Утилиты
-    file-roller  # архиватор
-    pavucontrol  # управление звуком
-    
-    # Разработка
+    file-roller
+    pavucontrol
     nodejs
     python3
     rustc
@@ -32,41 +21,27 @@
     go
   ]);
   
-  # Git конфигурация
   programs.git = {
     enable = true;
     userName = "Yukishidzu";
-    userEmail = "yukishidzu@example.com";  # Замени на свой email
-    
+    userEmail = "CHANGE_ME@EXAMPLE";  # Укажи свой email
     extraConfig = {
-      init = {
-        defaultBranch = "main";
-      };
-      pull = {
-        rebase = true;
-      };
-      push = {
-        autoSetupRemote = true;
-      };
+      init.defaultBranch = "main";
+      pull.rebase = true;
+      push.autoSetupRemote = true;
     };
   };
   
-  # Kitty терминал
   programs.kitty = {
     enable = true;
     settings = {
       font_family = "JetBrainsMono Nerd Font";
       font_size = 11;
-      
       background_opacity = "0.9";
-      
-      # Цветовая схема Catppuccin Mocha
       foreground = "#CDD6F4";
       background = "#1E1E2E";
       selection_foreground = "#1E1E2E";
       selection_background = "#F5E0DC";
-      
-      # Основные цвета
       color0 = "#45475A";
       color1 = "#F38BA8";
       color2 = "#A6E3A1";
@@ -86,34 +61,24 @@
     };
   };
   
-  # Firefox настройки
   programs.firefox = {
     enable = true;
-    
     profiles.default = {
       id = 0;
       isDefault = true;
-      
       settings = {
-        # Приватность
         "privacy.trackingprotection.enabled" = true;
         "privacy.trackingprotection.socialtracking.enabled" = true;
-        
-        # Производительность
         "gfx.webrender.all" = true;
         "media.ffmpeg.vaapi.enabled" = true;
-        
-        # Интерфейс
-        "browser.uidensity" = 1;  # Компактный интерфейс
+        "browser.uidensity" = 1;
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
       };
     };
   };
   
-  # Настройки тем для приложений
   gtk = {
     enable = true;
-    
     theme = {
       name = "Catppuccin-Mocha-Standard-Blue-Dark";
       package = pkgs.catppuccin-gtk.override {
@@ -123,7 +88,6 @@
         variant = "mocha";
       };
     };
-    
     iconTheme = {
       name = "Papirus-Dark";
       package = pkgs.catppuccin-papirus-folders.override {
@@ -131,7 +95,6 @@
         accent = "blue";
       };
     };
-    
     cursorTheme = {
       name = "Catppuccin-Mocha-Blue-Cursors";
       package = pkgs.catppuccin-cursors.mochaBlue;
@@ -139,17 +102,14 @@
     };
   };
   
-  # Qt настройки
   qt = {
     enable = true;
     platformTheme.name = "qtct";
     style.name = "kvantum";
   };
   
-  # XDG настройки
   xdg = {
     enable = true;
-    
     mimeApps = {
       enable = true;
       defaultApplications = {
