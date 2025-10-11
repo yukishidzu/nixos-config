@@ -1,100 +1,164 @@
-{ config, pkgs, lib, inputs, ... }:
+{ config, pkgs, lib, inputs, pkgs-unstable, ... }:
 
 {
-  imports = [
-    ./kitty.nix
-  ];
-
-  # GUI приложения
+  # Основные программы
   home.packages = with pkgs; [
-    # Основные браузеры
+    # Браузеры
     firefox
-    chromium
     
-    # Редакторы кода
+    # Редакторы кода (из unstable для свежих версий)
+  ] ++ (with pkgs-unstable; [
+    cursor
     vscodium
-    cursor # Основной редактор Cursor
+  ]) ++ (with pkgs; [
     
     # Мессенджеры
     telegram-desktop
-    signal-desktop
     discord
     
     # Медиа
-    mpv
     vlc
     spotify
     
-    # Утилиты для работы
-    pavucontrol
-    blueman
-    networkmanagerapplet
-    amnezia-vpn
-    
-    # Красивые утилиты
-    eww-wayland # Виджеты для Wayland
-    swww # Анимированные обои
-    grim # Скриншоты
-    slurp # Выбор области для скриншота
-    wf-recorder # Запись экрана
-    wl-clipboard # Буфер обмена
-    cliphist # История буфера обмена
-    
-    # Системные утилиты
-    htop
-    btop
-    neofetch
-    fastfetch
-    lsd
-    bat
-    fd
-    ripgrep
-    fzf
-    zoxide
-    exa
-    procs
-    du-dust
-    bottom
+    # Утилиты
+    file-roller  # архиватор
+    pavucontrol  # управление звуком
     
     # Разработка
-    nodejs_20
+    nodejs
     python3
     rustc
     cargo
-    
-    # Файловые менеджеры
-    nemo
-    dolphin
-    
-    # Дополнительные утилиты
-    gparted
-    gsmartcontrol
-    hwinfo
-    inxi
-    lshw
-    pciutils
-    usbutils
-    brightnessctl
-    playerctl
-    pamixer
-    
-    # Красивые темы и иконки
-    papirus-icon-theme
-    nordic
-    whitesur-gtk-theme
-    whitesur-icon-theme
-  ];
-
-  # Spicetify для Spotify
-  programs.spicetify = {
+    go
+  ]);
+  
+  # Git конфигурация
+  programs.git = {
     enable = true;
-    theme = inputs.spicetify-nix.packages.${pkgs.system}.default.themes.catppuccin;
-    colorScheme = "mocha";
+    userName = "Yukishidzu";
+    userEmail = "yukishidzu@example.com";  # Замени на свой email
     
-    enabledExtensions = with inputs.spicetify-nix.packages.${pkgs.system}.default.extensions; [
-      fullAppDisplay
-      shuffle
-      hidePodcasts
-    ];
+    extraConfig = {
+      init = {
+        defaultBranch = "main";
+      };
+      pull = {
+        rebase = true;
+      };
+      push = {
+        autoSetupRemote = true;
+      };
+    };
+  };
+  
+  # Kitty терминал
+  programs.kitty = {
+    enable = true;
+    settings = {
+      font_family = "JetBrainsMono Nerd Font";
+      font_size = 11;
+      
+      background_opacity = "0.9";
+      
+      # Цветовая схема Catppuccin Mocha
+      foreground = "#CDD6F4";
+      background = "#1E1E2E";
+      selection_foreground = "#1E1E2E";
+      selection_background = "#F5E0DC";
+      
+      # Основные цвета
+      color0 = "#45475A";
+      color1 = "#F38BA8";
+      color2 = "#A6E3A1";
+      color3 = "#F9E2AF";
+      color4 = "#89B4FA";
+      color5 = "#F5C2E7";
+      color6 = "#94E2D5";
+      color7 = "#BAC2DE";
+      color8 = "#585B70";
+      color9 = "#F38BA8";
+      color10 = "#A6E3A1";
+      color11 = "#F9E2AF";
+      color12 = "#89B4FA";
+      color13 = "#F5C2E7";
+      color14 = "#94E2D5";
+      color15 = "#A6ADC8";
+    };
+  };
+  
+  # Firefox настройки
+  programs.firefox = {
+    enable = true;
+    
+    profiles.default = {
+      id = 0;
+      isDefault = true;
+      
+      settings = {
+        # Приватность
+        "privacy.trackingprotection.enabled" = true;
+        "privacy.trackingprotection.socialtracking.enabled" = true;
+        
+        # Производительность
+        "gfx.webrender.all" = true;
+        "media.ffmpeg.vaapi.enabled" = true;
+        
+        # Интерфейс
+        "browser.uidensity" = 1;  # Компактный интерфейс
+        "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+      };
+    };
+  };
+  
+  # Настройки тем для приложений
+  gtk = {
+    enable = true;
+    
+    theme = {
+      name = "Catppuccin-Mocha-Standard-Blue-Dark";
+      package = pkgs.catppuccin-gtk.override {
+        accents = [ "blue" ];
+        size = "standard";
+        tweaks = [ "rimless" ];
+        variant = "mocha";
+      };
+    };
+    
+    iconTheme = {
+      name = "Papirus-Dark";
+      package = pkgs.catppuccin-papirus-folders.override {
+        flavor = "mocha";
+        accent = "blue";
+      };
+    };
+    
+    cursorTheme = {
+      name = "Catppuccin-Mocha-Blue-Cursors";
+      package = pkgs.catppuccin-cursors.mochaBlue;
+      size = 24;
+    };
+  };
+  
+  # Qt настройки
+  qt = {
+    enable = true;
+    platformTheme.name = "qtct";
+    style.name = "kvantum";
+  };
+  
+  # XDG настройки
+  xdg = {
+    enable = true;
+    
+    mimeApps = {
+      enable = true;
+      defaultApplications = {
+        "text/html" = "firefox.desktop";
+        "x-scheme-handler/http" = "firefox.desktop";
+        "x-scheme-handler/https" = "firefox.desktop";
+        "x-scheme-handler/about" = "firefox.desktop";
+        "x-scheme-handler/unknown" = "firefox.desktop";
+      };
+    };
   };
 }
