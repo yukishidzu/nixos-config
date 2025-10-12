@@ -92,9 +92,9 @@
         "SHIFT, Print, exec, grim - | wl-copy"
         "SUPER SHIFT, S, exec, grim -g \"$(slurp)\" - | swappy -f -"
         "SUPER, C, exec, cliphist list | wofi --dmenu | cliphist decode | wl-copy"
-        "XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
-        "XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
-        "XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+        "XF86AudioRaiseVolume, exec, pactl set-sink-volume @DEFAULT_SINK@ +5%"
+        "XF86AudioLowerVolume, exec, pactl set-sink-volume @DEFAULT_SINK@ -5%"
+        "XF86AudioMute, exec, pactl set-sink-mute @DEFAULT_SINK@ toggle"
         "XF86MonBrightnessUp, exec, brightnessctl s 10%+"
         "XF86MonBrightnessDown, exec, brightnessctl s 10%-"
         "XF86AudioPlay, exec, playerctl play-pause"
@@ -104,7 +104,6 @@
       
       bindm = [ "SUPER, mouse:272, movewindow" "SUPER, mouse:273, resizewindow" ];
       
-      # Удалили waybar из exec-once - теперь запуск через HM systemd user service
       exec-once = [ 
         "swww init" 
         "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
@@ -116,7 +115,7 @@
   
   home.packages = with pkgs; [ 
     grim slurp wl-clipboard swww wofi nautilus kitty
-    swappy cliphist brightnessctl playerctl wpctl
+    swappy cliphist brightnessctl playerctl
     btop fastfetch eza bat fd ripgrep lazygit
   ];
 }
