@@ -10,6 +10,7 @@ in
   # Основные программы (с безопасными fallback-ами)
   home.packages =
     (with pkgs; [
+      firefox
       telegram-desktop
       vlc
       file-roller
@@ -87,9 +88,6 @@ in
     enableZshIntegration = false;
     enableFishIntegration = false;
   };
-  
-  # Браузер Firefox не управляется HM
-  programs.firefox.enable = false;
   
   # Qt настройки — catppuccin требует kvantum
   qt = {
