@@ -15,6 +15,7 @@
   outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, hardware, catppuccin, ... }@inputs:
     let
       system = "x86_64-linux";
+      lib = nixpkgs.lib;
       pkgs = import nixpkgs {
         inherit system;
         config = {
@@ -30,7 +31,6 @@
         config = { allowUnfree = true; };
       };
       specialArgs = { inherit inputs pkgs-unstable hardware; };
-      lib = nixpkgs.lib;
     in
     {
       nixosConfigurations = {
@@ -77,8 +77,24 @@
           ];
         };
       };
-      
-      devShells.${system}.default = pkgs.mkShell { packages = with pkgs; [ nixpkgs-fmt nil git home-manager ]; };
+
+      # Dev shell without non-derivation entries
+      devShells.${system}.default = pkgs.mkShell {
+        name = "nixos-config-dev";
+        packages = with pkgs; [
+          nixpkgs-fmt
+          nil
+          git
+          just
+          nix-tree
+          nix-du
+        ];
+        shellHook = ''
+          echo "Dev shell ready: nixpkgs-fmt, nil, git, just, nix-tree, nix-du"
+          echo "Run: nix fmt .   |   nix flake check"
+        '';
+      };
+
       formatter.${system} = pkgs.nixpkgs-fmt;
     };
 }
