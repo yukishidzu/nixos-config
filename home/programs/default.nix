@@ -10,7 +10,7 @@ in
   # Основные программы (с безопасными fallback-ами)
   home.packages =
     (with pkgs; [
-      firefox
+      # firefox — удалён из декларативного управления по запросу (ставьте вручную при желании)
       telegram-desktop
       vlc
       file-roller
@@ -55,28 +55,8 @@ in
     };
   };
   
-  # Firefox — декларативно и совместимо с HM 25.05 (без внешних modules)
-  programs.firefox = {
-    enable = true;
-    profiles.default = {
-      isDefault = true;
-      extensions.force = true; # подтверждаем перезапись настроек расширений
-      extensions = [
-        "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"
-        "https://addons.mozilla.org/firefox/downloads/latest/darkreader/latest.xpi"
-        "https://addons.mozilla.org/firefox/downloads/latest/bitwarden-password-manager/latest.xpi"
-        "https://addons.mozilla.org/firefox/downloads/latest/vimium-ff/latest.xpi"
-      ];
-      settings = {
-        "privacy.trackingprotection.enabled" = true;
-        "privacy.trackingprotection.socialtracking.enabled" = true;
-        "gfx.webrender.all" = true;
-        "media.ffmpeg.vaapi.enabled" = true;
-        "browser.uidensity" = 1;
-        "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-      };
-    };
-  };
+  # Браузер Firefox — НЕ управляется HM: нет profiles.*, extensions.*, settings
+  programs.firefox.enable = false;
   
   # Qt настройки — catppuccin требует kvantum
   qt = {
@@ -161,13 +141,7 @@ in
     enable = true;
     mimeApps = {
       enable = true;
-      defaultApplications = {
-        "text/html" = "firefox.desktop";
-        "x-scheme-handler/http" = "firefox.desktop";
-        "x-scheme-handler/https" = "firefox.desktop";
-        "x-scheme-handler/about" = "firefox.desktop";
-        "x-scheme-handler/unknown" = "firefox.desktop";
-      };
+      # Без принудительного привязки браузера — оставляем по умолчанию или на усмотрение пользователя
     };
   };
 }
