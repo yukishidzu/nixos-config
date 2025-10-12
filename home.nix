@@ -2,9 +2,7 @@
 
 {
   imports = [
-    inputs.catppuccin.homeManagerModules.catppuccin
-    inputs.nix-colors.homeManagerModules.default
-    inputs.spicetify-nix.homeManagerModule
+    inputs.catppuccin.homeModules.catppuccin
     ./home/shell
     ./home/hyprland
     ./home/programs
@@ -17,17 +15,14 @@
     stateVersion = "25.05";
   };
 
-  # Глобальная тема Catppuccin с исключениями
+  # Глобальная тема Catppuccin
   catppuccin = {
     enable = true;
     flavor = "mocha";
-    accent = "blue";  # Добавляем accent для единообразия
+    accent = "blue";
   };
 
-  # Nix Colors для дополнительных тем (опционально)
-  colorScheme = inputs.nix-colors.colorSchemes.catppuccin-mocha;
-
-  # Позволяем Home Manager управлять собой
+  # Разрешить Home Manager управлять собой
   programs.home-manager.enable = true;
 
   # Менеджер фоновых служб
@@ -36,12 +31,9 @@
   # Основные настройки XDG
   xdg = {
     enable = true;
-    
-    # Пути к папкам
     userDirs = {
       enable = true;
       createDirectories = true;
-      
       desktop = "$HOME/Desktop";
       documents = "$HOME/Documents";
       download = "$HOME/Downloads";
@@ -55,31 +47,22 @@
 
   # Переменные окружения
   home.sessionVariables = {
-    # Основные приложения
     EDITOR = "cursor";
     BROWSER = "firefox";
     TERMINAL = "kitty";
-    
-    # Wayland настройки
-    NIXOS_OZONE_WL = "1";  # Для Electron приложений
-    MOZ_ENABLE_WAYLAND = "1";  # Для Firefox
+    NIXOS_OZONE_WL = "1";
+    MOZ_ENABLE_WAYLAND = "1";
     QT_QPA_PLATFORM = "wayland";
     GDK_BACKEND = "wayland,x11";
-    SDL_VIDEODRIVER = "wayland";
+    SDL_VIDEОДRIVER = "wayland";
     CLUTTER_BACKEND = "wayland";
-    
-    # XDG настройки
     XDG_CURRENT_DESKTOP = "Hyprland";
     XDG_SESSION_DESKTOP = "Hyprland";
     XDG_SESSION_TYPE = "wayland";
   };
 
-  # Дополнительные сервисы пользователя
   services = {
-    # Polkit агент для аутентификации
     polkit-gnome-authentication-agent-1.enable = true;
-    
-    # Уведомления
     dunst = {
       enable = true;
       settings = {
@@ -92,7 +75,6 @@
           frame_color = "#89B4FA";
           font = "JetBrainsMono Nerd Font 10";
         };
-        
         urgency_normal = {
           background = "#1E1E2E";
           foreground = "#CDD6F4";
@@ -101,19 +83,11 @@
     };
   };
 
-  # Программы, которые должны запускаться с системой
   home.packages = with pkgs; [
-    # Обои и рабочий стол
-    nitrogen  # менеджер обоев
-    
-    # Мультимедиа
-    playerctl  # управление медиа
-    
-    # Системные утилиты
-    lshw  # информация о железе
-    lm_sensors  # датчики
-    
-    # Шрифты (дополнительно)
+    nitrogen
+    playerctl
+    lshw
+    lm_sensors
     liberation_ttf
     dejavu_fonts
   ];
