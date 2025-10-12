@@ -1,25 +1,30 @@
 { config, pkgs, lib, inputs, pkgs-unstable, ... }:
 
+let
+  hasCursor = pkgs-unstable ? cursor;
+  hasSpotify = pkgs ? spotify;
+  hasVSCodium = pkgs-unstable ? vscodium;
+  opt = lib.optionals;
+in
 {
-  # Основные программы
-  home.packages = with pkgs; [
-    firefox
-  ] ++ (with pkgs-unstable; [
-    cursor
-    vscodium
-  ]) ++ (with pkgs; [
-    telegram-desktop
-    discord
-    vlc
-    spotify
-    file-roller
-    pavucontrol
-    nodejs
-    python3
-    rustc
-    cargo
-    go
-  ]);
+  # Основные программы (с безопасными fallback-ами)
+  home.packages =
+    (with pkgs; [
+      firefox
+      telegram-desktop
+      discord
+      vlc
+      file-roller
+      pavucontrol
+      nodejs
+      python3
+      rustc
+      cargo
+      go
+    ])
+    ++ (opt hasSpotify [ pkgs.spotify ])
+    ++ (opt hasCursor [ pkgs-unstable.cursor ])
+    ++ (opt hasVSCodium [ pkgs-unstable.vscodium ]);
   
   # Git конфигурация
   programs.git = {
@@ -51,14 +56,12 @@
     };
   };
   
-  # Firefox настройки — без extensions.settings, чтобы не триггерить assertion HM
+  # Firefox настройки — extensions.force подтверждает возможную перезапись
   programs.firefox = {
     enable = true;
     profiles.default = {
       id = 0;
       isDefault = true;
-      # Если в системе где‑то подключались extensions.settings через overlays или др. модули,
-      # жёстко подтверждаем перезапись, чтобы снять assertion:
       extensions.force = true;
       settings = {
         "privacy.trackingprotection.enabled" = true;
