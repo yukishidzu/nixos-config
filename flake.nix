@@ -15,9 +15,22 @@
   outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, hardware, catppuccin, ... }@inputs:
     let
       system = "x86_64-linux";
-      pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
-      pkgs-unstable = import nixpkgs-unstable { inherit system; config.allowUnfree = true; };
+      pkgs = import nixpkgs {
+        inherit system;
+        config = {
+          allowUnfree = true;
+          allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+            "discord"
+            "spotify"
+          ];
+        };
+      };
+      pkgs-unstable = import nixpkgs-unstable {
+        inherit system;
+        config = { allowUnfree = true; };
+      };
       specialArgs = { inherit inputs pkgs-unstable hardware; };
+      lib = nixpkgs.lib;
     in
     {
       nixosConfigurations = {
@@ -26,6 +39,15 @@
           modules = [
             ./configuration.nix
             ./hardware-configuration.nix
+            ({ config, ... }: {
+              nixpkgs.config = {
+                allowUnfree = true;
+                allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+                  "discord"
+                  "spotify"
+                ];
+              };
+            })
             home-manager.nixosModules.home-manager
             catppuccin.nixosModules.catppuccin
             {
@@ -50,7 +72,6 @@
                 extraSpecialArgs = { inherit inputs pkgs-unstable; };
                 users.yukishidzu = import ./home.nix;
                 backupFileExtension = "backup";
-                # ВАЖНО: не задаем несуществующие опции уровнем HM, как services.polkit-gnome-authentication-agent-1
               };
             }
           ];
