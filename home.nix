@@ -61,8 +61,8 @@
     XDG_SESSION_TYPE = "wayland";
   };
 
+  # Удалено: несуществующий модуль services.polkit-gnome-authentication-agent-1
   services = {
-    polkit-gnome-authentication-agent-1.enable = true;
     dunst = {
       enable = true;
       settings = {
