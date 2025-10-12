@@ -55,13 +55,11 @@ in
     };
   };
   
-  # Firefox настройки — extensions.force подтверждает возможную перезапись
+  # Firefox настройки — минимальные, чтобы не пересоздавать профиль
   programs.firefox = {
     enable = true;
     profiles.default = {
-      id = 0;
-      isDefault = true;
-      extensions.force = true;
+      # Не указываем id и isDefault, не ставим extensions.force
       settings = {
         "privacy.trackingprotection.enabled" = true;
         "privacy.trackingprotection.socialtracking.enabled" = true;
@@ -101,6 +99,55 @@ in
       package = pkgs.catppuccin-cursors.mochaBlue;
       size = 24;
     };
+  };
+  
+  # Конфиг btop для Catppuccin
+  programs.btop = {
+    enable = true;
+    settings = {
+      color_theme = "catppuccin_mocha";
+      theme_background = false;
+      rounded_corners = true;
+      graph_symbol = "braille";
+      shown_boxes = "cpu mem net proc";
+    };
+  };
+  
+  # Git-интерфейс lazygit
+  programs.lazygit = {
+    enable = true;
+    settings = {
+      gui = {
+        theme = {
+          lightTheme = false;
+          activeBorderColor = [ "#89b4fa" "bold" ];
+          inactiveBorderColor = [ "#a6adc8" ];
+          optionsTextColor = [ "#89b4fa" ];
+          selectedLineBgColor = [ "#313244" ];
+          selectedRangeBgColor = [ "#313244" ];
+          cherryPickedCommitBgColor = [ "#45475a" ];
+          cherryPickedCommitFgColor = [ "#89b4fa" ];
+        };
+      };
+    };
+  };
+  
+  # Конфиг bat (синтаксис highlighting)
+  programs.bat = {
+    enable = true;
+    config = {
+      theme = "Catppuccin-mocha";
+      italic-text = "always";
+      style = "numbers,changes,header";
+    };
+  };
+  
+  # eza вместо ls
+  programs.eza = {
+    enable = true;
+    enableBashIntegration = false;  # Не переопределяем ls
+    enableZshIntegration = false;
+    enableFishIntegration = false;
   };
   
   xdg = {
