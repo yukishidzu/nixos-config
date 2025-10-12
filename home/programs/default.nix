@@ -55,16 +55,18 @@ in
     };
   };
   
-  # Firefox — декларативно по HM best practices
+  # Firefox — декларативно и совместимо с HM 25.05 (без внешних modules)
   programs.firefox = {
     enable = true;
-    
     profiles.default = {
       isDefault = true;
-      # ЯВНО подтверждаем возможность перезаписи настроек расширений внешними модулями
-      extensions.force = true;
-      
-      # Безопасные настройки, не трогающие путь/ID профиля
+      extensions.force = true; # подтверждаем перезапись настроек расширений
+      extensions = [
+        "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"
+        "https://addons.mozilla.org/firefox/downloads/latest/darkreader/latest.xpi"
+        "https://addons.mozilla.org/firefox/downloads/latest/bitwarden-password-manager/latest.xpi"
+        "https://addons.mozilla.org/firefox/downloads/latest/vimium-ff/latest.xpi"
+      ];
       settings = {
         "privacy.trackingprotection.enabled" = true;
         "privacy.trackingprotection.socialtracking.enabled" = true;
@@ -73,18 +75,6 @@ in
         "browser.uidensity" = 1;
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
       };
-    };
-    
-    # Управление расширениями централизованно через addons
-    addons = {
-      enable = true;
-      packages = pkgs.firefox-addons;
-      addons = with pkgs.firefox-addons; [
-        ublock-origin
-        darkreader
-        bitwarden
-        vimium
-      ];
     };
   };
   
