@@ -13,20 +13,23 @@
         "SDL_VIDEODRIVER,wayland"
         "CLUTTER_BACKEND,wayland"
       ];
+      
       general = {
         gaps_in = 5;
         gaps_out = 10;
         border_size = 2;
-        "col.active_border" = "rgba(33ccffee) rgba(00ff99ee) 45deg";
-        "col.inactive_border" = "rgba(595959aa)";
+        "col.active_border" = "rgba(137,180,250,0.8)";
+        "col.inactive_border" = "rgba(69,71,90,0.8)";
         layout = "dwindle";
         allow_tearing = false;
       };
+      
       decoration = {
         rounding = 10;
         blur = { enabled = true; size = 3; passes = 1; vibrancy = 0.1696; };
-        drop_shadow = true; shadow_range = 4; shadow_render_power = 3; "col.shadow" = "rgba(1a1a1aee)";
+        drop_shadow = true; shadow_range = 4; shadow_render_power = 3; "col.shadow" = "rgba(26,27,38,0.8)";
       };
+      
       animations = {
         enabled = true;
         bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
@@ -39,20 +42,24 @@
           "workspaces, 1, 6, default"
         ];
       };
+      
       dwindle = { pseudotile = true; preserve_split = true; };
       gestures.workspace_swipe = false;
       misc = { force_default_wallpaper = 0; disable_hyprland_logo = false; };
+      
       input = {
         kb_layout = "us,ru"; kb_options = "grp:win_space_toggle";
         follow_mouse = 1;
-        touchpad = { natural_scroll = true; };  # удобство по умолчанию
+        touchpad = { natural_scroll = true; };
         sensitivity = 0;
       };
+      
       bind = [
         "SUPER, Q, killactive,"
         "SUPER, M, exit,"
         "SUPER, E, exec, nautilus"
         "SUPER, V, togglefloating,"
+        "SUPER, D, exec, wofi --show drun"
         "SUPER, R, exec, wofi --show drun"
         "SUPER, P, pseudo,"
         "SUPER, J, togglesplit,"
@@ -83,10 +90,33 @@
         "SUPER SHIFT, 0, movetoworkspace, 10"
         ", Print, exec, grim -g \"$(slurp)\" - | wl-copy"
         "SHIFT, Print, exec, grim - | wl-copy"
+        "SUPER SHIFT, S, exec, grim -g \"$(slurp)\" - | swappy -f -"
+        "SUPER, C, exec, cliphist list | wofi --dmenu | cliphist decode | wl-copy"
+        "XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
+        "XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+        "XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+        "XF86MonBrightnessUp, exec, brightnessctl s 10%+"
+        "XF86MonBrightnessDown, exec, brightnessctl s 10%-"
+        "XF86AudioPlay, exec, playerctl play-pause"
+        "XF86AudioNext, exec, playerctl next"
+        "XF86AudioPrev, exec, playerctl previous"
       ];
+      
       bindm = [ "SUPER, mouse:272, movewindow" "SUPER, mouse:273, resizewindow" ];
-      exec-once = [ "waybar" "swww init" "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1" ];
+      
+      # Удалили waybar из exec-once - теперь запуск через HM systemd user service
+      exec-once = [ 
+        "swww init" 
+        "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
+        "wl-paste --type text --watch cliphist store"
+        "wl-paste --type image --watch cliphist store"
+      ];
     };
   };
-  home.packages = with pkgs; [ grim slurp wl-clipboard swww wofi nautilus kitty ];
+  
+  home.packages = with pkgs; [ 
+    grim slurp wl-clipboard swww wofi nautilus kitty
+    swappy cliphist brightnessctl playerctl wpctl
+    btop fastfetch eza bat fd ripgrep lazygit
+  ];
 }
