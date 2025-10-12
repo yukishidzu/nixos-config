@@ -26,10 +26,12 @@
     hostName = "yukishidzu";
     networkmanager.enable = true;
     useDHCP = false;
-    sysctl = {
-      "net.core.default_qdisc" = "fq_codel";
-      "net.ipv4.tcp_congestion_control" = "bbr";
-    };
+  };
+
+  # Перенесены параметры sysctl в services.sysctl.settings (networking.sysctl недоступен)
+  services.sysctl.settings = {
+    "net.core.default_qdisc" = "fq_codel";
+    "net.ipv4.tcp_congestion_control" = "bbr";
   };
 
   i18n = {
