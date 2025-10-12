@@ -50,8 +50,8 @@
                 extraSpecialArgs = { inherit inputs pkgs-unstable; };
                 users.yukishidzu = import ./home.nix;
                 backupFileExtension = "backup";
+                # ВАЖНО: не задаем несуществующие опции уровнем HM, как services.polkit-gnome-authentication-agent-1
               };
-              # Убираем несуществующие опции HM уровня services.*
             }
           ];
         };
