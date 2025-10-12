@@ -51,12 +51,15 @@
     };
   };
   
-  # Firefox настройки (без extensions.settings чтобы не вызывать assertion HM)
+  # Firefox настройки — без extensions.settings, чтобы не триггерить assertion HM
   programs.firefox = {
     enable = true;
     profiles.default = {
       id = 0;
       isDefault = true;
+      # Если в системе где‑то подключались extensions.settings через overlays или др. модули,
+      # жёстко подтверждаем перезапись, чтобы снять assertion:
+      extensions.force = true;
       settings = {
         "privacy.trackingprotection.enabled" = true;
         "privacy.trackingprotection.socialtracking.enabled" = true;
@@ -65,13 +68,10 @@
         "browser.uidensity" = 1;
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
       };
-      # Если позже понадобятся extensions.settings, добавьте:
-      # extensions.force = true;
-      # extensions.settings = { ... };
     };
   };
   
-  # Qt настройки — требование HM: чтобы использовать qt.style.catppuccin, platformTheme.name должен быть "kvantum"
+  # Qt настройки — catppuccin требует kvantum
   qt = {
     enable = true;
     platformTheme.name = "kvantum";
@@ -101,7 +101,6 @@
     };
   };
   
-  # XDG mime
   xdg = {
     enable = true;
     mimeApps = {
