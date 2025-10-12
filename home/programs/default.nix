@@ -21,10 +21,11 @@
     go
   ]);
   
+  # Git конфигурация
   programs.git = {
     enable = true;
     userName = "Yukishidzu";
-    userEmail = "CHANGE_ME@EXAMPLE";  # Укажи свой email
+    userEmail = "CHANGE_ME@EXAMPLE";
     extraConfig = {
       init.defaultBranch = "main";
       pull.rebase = true;
@@ -32,6 +33,7 @@
     };
   };
   
+  # Kitty терминал
   programs.kitty = {
     enable = true;
     settings = {
@@ -42,25 +44,14 @@
       background = "#1E1E2E";
       selection_foreground = "#1E1E2E";
       selection_background = "#F5E0DC";
-      color0 = "#45475A";
-      color1 = "#F38BA8";
-      color2 = "#A6E3A1";
-      color3 = "#F9E2AF";
-      color4 = "#89B4FA";
-      color5 = "#F5C2E7";
-      color6 = "#94E2D5";
-      color7 = "#BAC2DE";
-      color8 = "#585B70";
-      color9 = "#F38BA8";
-      color10 = "#A6E3A1";
-      color11 = "#F9E2AF";
-      color12 = "#89B4FA";
-      color13 = "#F5C2E7";
-      color14 = "#94E2D5";
-      color15 = "#A6ADC8";
+      color0 = "#45475A"; color1 = "#F38BA8"; color2 = "#A6E3A1"; color3 = "#F9E2AF";
+      color4 = "#89B4FA"; color5 = "#F5C2E7"; color6 = "#94E2D5"; color7 = "#BAC2DE";
+      color8 = "#585B70"; color9 = "#F38BA8"; color10 = "#A6E3A1"; color11 = "#F9E2AF";
+      color12 = "#89B4FA"; color13 = "#F5C2E7"; color14 = "#94E2D5"; color15 = "#A6ADC8";
     };
   };
   
+  # Firefox настройки (без extensions.settings чтобы не вызывать assertion HM)
   programs.firefox = {
     enable = true;
     profiles.default = {
@@ -74,9 +65,20 @@
         "browser.uidensity" = 1;
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
       };
+      # Если позже понадобятся extensions.settings, добавьте:
+      # extensions.force = true;
+      # extensions.settings = { ... };
     };
   };
   
+  # Qt настройки — требование HM: чтобы использовать qt.style.catppuccin, platformTheme.name должен быть "kvantum"
+  qt = {
+    enable = true;
+    platformTheme.name = "kvantum";
+    style.name = "kvantum";
+  };
+  
+  # GTK тема и иконки
   gtk = {
     enable = true;
     theme = {
@@ -90,10 +92,7 @@
     };
     iconTheme = {
       name = "Papirus-Dark";
-      package = pkgs.catppuccin-papirus-folders.override {
-        flavor = "mocha";
-        accent = "blue";
-      };
+      package = pkgs.catppuccin-papirus-folders.override { flavor = "mocha"; accent = "blue"; };
     };
     cursorTheme = {
       name = "Catppuccin-Mocha-Blue-Cursors";
@@ -102,12 +101,7 @@
     };
   };
   
-  qt = {
-    enable = true;
-    platformTheme.name = "qtct";
-    style.name = "kvantum";
-  };
-  
+  # XDG mime
   xdg = {
     enable = true;
     mimeApps = {
