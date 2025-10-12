@@ -55,20 +55,9 @@ in
     };
   };
   
-  # Firefox настройки — минимальные, чтобы не пересоздавать профиль
+  # Firefox — полностью исключаем управление профилем через HM, чтобы снять assertion
   programs.firefox = {
     enable = true;
-    profiles.default = {
-      # Не указываем id и isDefault, не ставим extensions.force
-      settings = {
-        "privacy.trackingprotection.enabled" = true;
-        "privacy.trackingprotection.socialtracking.enabled" = true;
-        "gfx.webrender.all" = true;
-        "media.ffmpeg.vaapi.enabled" = true;
-        "browser.uidensity" = 1;
-        "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-      };
-    };
   };
   
   # Qt настройки — catppuccin требует kvantum
@@ -145,7 +134,7 @@ in
   # eza вместо ls
   programs.eza = {
     enable = true;
-    enableBashIntegration = false;  # Не переопределяем ls
+    enableBashIntegration = false;
     enableZshIntegration = false;
     enableFishIntegration = false;
   };
