@@ -12,7 +12,6 @@ in
     (with pkgs; [
       firefox
       telegram-desktop
-      discord
       vlc
       file-roller
       pavucontrol
