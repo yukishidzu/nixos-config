@@ -28,7 +28,7 @@
     useDHCP = false;
   };
 
-  # Перенесены параметры sysctl в services.sysctl.settings (networking.sysctl недоступен)
+  # Перенесены параметры sysctl в boot.kernel.sysctl
   boot.kernel.sysctl = {
     "net.core.default_qdisc" = "fq_codel";
     "net.ipv4.tcp_congestion_control" = "bbr";
@@ -150,7 +150,7 @@
     nerd-fonts.jetbrains-mono
     nerd-fonts.symbols-only
     noto-fonts
-    noto-fonts-cjk
+    noto-fonts-cjk-sans
     noto-fonts-emoji
     inter
     roboto
