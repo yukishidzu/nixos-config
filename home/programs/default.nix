@@ -5,6 +5,13 @@ let
   hasSpotify = pkgs ? spotify;
   hasVSCodium = pkgs-unstable ? vscodium;
   opt = lib.optionals;
+  # Список желаемых расширений по ID (AMO) с автообновлением
+  ffExt = {
+    ublock = "uBlock0@raymondhill.net";
+    darkreader = "addon@darkreader.org";
+    bitwarden = "{446900e4-71c2-419f-a6a7-df9c091e268b}";
+    vimium = "vimium@philc.github.com";
+  };
 in
 {
   # Основные программы (с безопасными fallback-ами)
@@ -55,9 +62,38 @@ in
     };
   };
   
-  # Firefox — полностью исключаем управление профилем через HM, чтобы снять assertion
+  # Firefox — декларативно и корректно по HM best practices
   programs.firefox = {
     enable = true;
+    
+    profiles.default = {
+      isDefault = true;
+      # ЯВНО подтверждаем переопределение настроек расширений
+      extensions.force = true;
+      # Объявляем расширения декларативно (автообновление из AMO)
+      extensions = with config.programs.firefox.addons; [
+        ublock-origin
+        dark-reader
+        bitwarden
+        vimium
+      ];
+      
+      # Безопасные настройки, не трогающие путь профиля
+      settings = {
+        "privacy.trackingprotection.enabled" = true;
+        "privacy.trackingprotection.socialtracking.enabled" = true;
+        "gfx.webrender.all" = true;
+        "media.ffmpeg.vaapi.enabled" = true;
+        "browser.uidensity" = 1;
+        "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+      };
+    };
+  };
+  
+  # Подключаем стандартные наборы расширений из HM (addons)
+  programs.firefox.addons = {
+    enable = true;
+    packages = pkgs.firefox-addons;  # официальный набор HM
   };
   
   # Qt настройки — catppuccin требует kvantum
