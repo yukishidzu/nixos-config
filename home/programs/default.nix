@@ -10,7 +10,6 @@ in
   # Основные программы (с безопасными fallback-ами)
   home.packages =
     (with pkgs; [
-      # firefox — удалён из декларативного управления по запросу (ставьте вручную при желании)
       telegram-desktop
       vlc
       file-roller
@@ -55,7 +54,41 @@ in
     };
   };
   
-  # Браузер Firefox — НЕ управляется HM: нет profiles.*, extensions.*, settings
+  # Удаляем конфликтующие настройки bat: используем только тему из подключенного модуля
+  programs.bat = {
+    enable = true;
+    # Не задаём config.theme, чтобы не конфликтовать с внешним модулем (Catppuccin)
+    # Оставляем прочие настройки по умолчанию для совместимости
+  };
+  
+  # Git-интерфейс lazygit
+  programs.lazygit = {
+    enable = true;
+    settings = {
+      gui = {
+        theme = {
+          lightTheme = false;
+          activeBorderColor = [ "#89b4fa" "bold" ];
+          inactiveBorderColor = [ "#a6adc8" ];
+          optionsTextColor = [ "#89b4fa" ];
+          selectedLineBgColor = [ "#313244" ];
+          selectedRangeBgColor = [ "#313244" ];
+          cherryPickedCommitBgColor = [ "#45475a" ];
+          cherryPickedCommitFgColor = [ "#89b4fa" ];
+        };
+      };
+    };
+  };
+  
+  # eza вместо ls
+  programs.eza = {
+    enable = true;
+    enableBashIntegration = false;
+    enableZshIntegration = false;
+    enableFishIntegration = false;
+  };
+  
+  # Браузер Firefox не управляется HM
   programs.firefox.enable = false;
   
   # Qt настройки — catppuccin требует kvantum
@@ -88,60 +121,10 @@ in
     };
   };
   
-  # Конфиг btop для Catppuccin
-  programs.btop = {
-    enable = true;
-    settings = {
-      color_theme = "catppuccin_mocha";
-      theme_background = false;
-      rounded_corners = true;
-      graph_symbol = "braille";
-      shown_boxes = "cpu mem net proc";
-    };
-  };
-  
-  # Git-интерфейс lazygit
-  programs.lazygit = {
-    enable = true;
-    settings = {
-      gui = {
-        theme = {
-          lightTheme = false;
-          activeBorderColor = [ "#89b4fa" "bold" ];
-          inactiveBorderColor = [ "#a6adc8" ];
-          optionsTextColor = [ "#89b4fa" ];
-          selectedLineBgColor = [ "#313244" ];
-          selectedRangeBgColor = [ "#313244" ];
-          cherryPickedCommitBgColor = [ "#45475a" ];
-          cherryPickedCommitFgColor = [ "#89b4fa" ];
-        };
-      };
-    };
-  };
-  
-  # Конфиг bat (синтаксис highlighting)
-  programs.bat = {
-    enable = true;
-    config = {
-      theme = "Catppuccin-mocha";
-      italic-text = "always";
-      style = "numbers,changes,header";
-    };
-  };
-  
-  # eza вместо ls
-  programs.eza = {
-    enable = true;
-    enableBashIntegration = false;
-    enableZshIntegration = false;
-    enableFishIntegration = false;
-  };
-  
   xdg = {
     enable = true;
     mimeApps = {
       enable = true;
-      # Без принудительного привязки браузера — оставляем по умолчанию или на усмотрение пользователя
     };
   };
 }
