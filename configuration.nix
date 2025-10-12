@@ -26,7 +26,7 @@
     hostName = "yukishidzu";
     networkmanager.enable = true;
     useDHCP = false;
-    kernel.sysctl = {
+    sysctl = {
       "net.core.default_qdisc" = "fq_codel";
       "net.ipv4.tcp_congestion_control" = "bbr";
     };
