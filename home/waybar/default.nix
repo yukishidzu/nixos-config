@@ -1,7 +1,13 @@
 { config, pkgs, lib, inputs, pkgs-unstable, ... }:
 
 {
-  # Waybar конфигурация - единый экземпляр через Home Manager
+  # Wofi config files
+  xdg.configFile = {
+    "wofi/config".source = ./wofi/config;
+    "wofi/style.css".source = ./wofi/style.css;
+  };
+  
+  # Waybar configuration - единый экземпляр через Home Manager
   programs.waybar = {
     enable = true;
     systemd.enable = true;  # Запуск через systemd user service
@@ -72,9 +78,9 @@
         
         # Сеть
         network = {
-          format-wifi = "󰖙 {essid}";
-          format-ethernet = "󰈀 Connected";
-          format-linked = "󰈀 Linked";
+          format-wifi = "󰤨 {essid}";
+          format-ethernet = "󰀂 Connected";
+          format-linked = "󰀂 Linked";
           format-disconnected = "󰤭 Offline";
           tooltip-format-wifi = "Signal: {signalStrength}%\nIP: {ipaddr}/{cidr}";
           tooltip-format-ethernet = "IP: {ipaddr}/{cidr}";
@@ -84,8 +90,8 @@
         pulseaudio = {
           format = "{icon} {volume}%";
           format-bluetooth = "{icon}󰂯 {volume}%";
-          format-bluetooth-muted = "󰖁󰂯";
-          format-muted = "󰖁";
+          format-bluetooth-muted = "󰝟󰂯";
+          format-muted = "󰝟";
           format-source = "󰍬 {volume}%";
           format-source-muted = "󰍭";
           
