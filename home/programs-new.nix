@@ -15,6 +15,7 @@ in
     ./wofi.nix
     ./fish.nix
     ./cursor.nix
+    ./autostart-terminal.nix
   ];
 
   # Базовые пакеты
