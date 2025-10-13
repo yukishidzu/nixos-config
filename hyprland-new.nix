@@ -3,23 +3,22 @@
   wayland.windowManager.hyprland = {
     enable = true;
     settings = {
-      # Сохраняем существующие exec-once без автолока при старте
+      # exec-once without lock-on-login (handled by hypridle)
       exec-once = [
         "swww init"
         "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
         "wl-paste --type text --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
       ];
-
-      # Безопасное расширение биндов (не перезапись)
-      bind = (config.wayland.windowManager.hyprland.settings.bind or []) ++ [
+      # Append our binds without self-referencing the option to avoid recursion
+      bind = lib.mkAfter [
         "SUPER, ESC, exec, wlogout -p layer-shell"
         "SUPER, L, exec, hyprlock"
       ];
     };
   };
 
-  # Корректный lock-on-login и автолок через hypridle, без exec-once
+  # Hypridle for lock-on-login and idle handling
   services.hypridle = {
     enable = true;
     settings = {
@@ -35,7 +34,7 @@
     };
   };
 
-  # Hyprlock темing Catppuccin Mocha
+  # Hyprlock Catppuccin Mocha styling
   xdg.configFile."hypr/hyprlock.conf".text = ''
     background {
       blur_passes = 4
