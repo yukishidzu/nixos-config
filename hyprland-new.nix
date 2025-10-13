@@ -3,26 +3,41 @@
   wayland.windowManager.hyprland = {
     enable = true;
     settings = {
-      # ... ваши существующие настройки ...
+      # Сохраняем существующие exec-once без автолока при старте
       exec-once = [
         "swww init"
         "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
         "wl-paste --type text --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
-        "sleep 1 && hyprlock"
       ];
-      # биндинг для power-меню исправить если не срабатывает
-      bind = [
+
+      # Безопасное расширение биндов (не перезапись)
+      bind = (config.wayland.windowManager.hyprland.settings.bind or []) ++ [
         "SUPER, ESC, exec, wlogout -p layer-shell"
         "SUPER, L, exec, hyprlock"
       ];
     };
   };
 
-  # Hyprlock Catppuccin Mocha с красивым стилем и анимацией
+  # Корректный lock-on-login и автолок через hypridle, без exec-once
+  services.hypridle = {
+    enable = true;
+    settings = {
+      general = {
+        lock_cmd = "hyprlock";
+        before_sleep_cmd = "hyprlock";
+      };
+      listener = [
+        { timeout = 1;    on-timeout = "hyprlock"; }
+        { timeout = 900;  on-timeout = "hyprlock"; }
+        { timeout = 1800; on-timeout = "systemctl suspend"; }
+      ];
+    };
+  };
+
+  # Hyprlock темing Catppuccin Mocha
   xdg.configFile."hypr/hyprlock.conf".text = ''
     background {
-      # Снимок экрана с блюром
       blur_passes = 4
       blur_size = 8
       brightness = 0.65
@@ -45,7 +60,7 @@
       placeholder_text = <i>Введите пароль...</i>
       fail_text = <b>Неверный пароль</b>
       position = 0, -80
-      capslock_color = rgba(249,226,175,0.60)
+      capslock_color = rgba(249,226,175,0.85)
     }
     label {
       text = cmd[update:1000] echo "$(date +"%H:%M")"
