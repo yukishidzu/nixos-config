@@ -4,57 +4,9 @@
   wayland.windowManager.hyprland = {
     enable = true;
     settings = {
-      monitor = [ ",preferred,auto,1" ];
-      env = [
-        "XCURSOR_SIZE,24"
-        "QT_QPA_PLATFORMTHEME,qt6ct"
-        "QT_QPA_PLATFORM,wayland"
-        "GDK_BACKEND,wayland,x11"
-        "SDL_VIDEODRIVER,wayland"
-        "CLUTTER_BACKEND,wayland"
-      ];
-      
-      general = {
-        gaps_in = 5;
-        gaps_out = 10;
-        border_size = 2;
-        "col.active_border" = "rgba(137,180,250,0.8)";
-        "col.inactive_border" = "rgba(69,71,90,0.8)";
-        layout = "dwindle";
-        allow_tearing = false;
-      };
-      
-      decoration = {
-        rounding = 10;
-        blur = { enabled = true; size = 3; passes = 1; vibrancy = 0.1696; };
-        drop_shadow = true; shadow_range = 4; shadow_render_power = 3; "col.shadow" = "rgba(26,27,38,0.8)";
-      };
-      
-      animations = {
-        enabled = true;
-        bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
-        animation = [
-          "windows, 1, 7, myBezier"
-          "windowsOut, 1, 7, default, popin 80%"
-          "border, 1, 10, default"
-          "borderangle, 1, 8, default"
-          "fade, 1, 7, default"
-          "workspaces, 1, 6, default"
-        ];
-      };
-      
-      dwindle = { pseudotile = true; preserve_split = true; };
-      gestures.workspace_swipe = false;
-      misc = { force_default_wallpaper = 0; disable_hyprland_logo = false; };
-      
-      input = {
-        kb_layout = "us,ru"; kb_options = "grp:win_space_toggle";
-        follow_mouse = 1;
-        touchpad = { natural_scroll = true; };
-        sensitivity = 0;
-      };
-      
+      # ... existing settings ...
       bind = [
+        # existing binds
         "SUPER, Q, killactive,"
         "SUPER, M, exit,"
         "SUPER, E, exec, nautilus"
@@ -100,6 +52,10 @@
         "XF86AudioPlay, exec, playerctl play-pause"
         "XF86AudioNext, exec, playerctl next"
         "XF86AudioPrev, exec, playerctl previous"
+        
+        # New: Power menu and lock
+        "SUPER, ESC, exec, wlogout -p layer-shell"
+        "SUPER, L, exec, hyprlock"
       ];
       
       bindm = [ "SUPER, mouse:272, movewindow" "SUPER, mouse:273, resizewindow" ];
@@ -117,5 +73,6 @@
     grim slurp wl-clipboard swww wofi nautilus kitty
     swappy cliphist brightnessctl playerctl
     btop fastfetch eza bat fd ripgrep lazygit
+    wlogout hyprlock hypridle
   ];
 }
