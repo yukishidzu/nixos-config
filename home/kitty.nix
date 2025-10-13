@@ -25,9 +25,6 @@
       "ctrl+shift+v" = "paste_from_clipboard";
       "ctrl+shift+t" = "new_tab";
     };
-    
-    # Гарантировать fish как shell
-    shell = "${pkgs.fish}/bin/fish";
   };
   # Kitty должен быть в userPackages
   home.packages = with pkgs; [ kitty ];
