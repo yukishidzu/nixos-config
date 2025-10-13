@@ -11,6 +11,10 @@ in
   imports = [
     ../hyprland-new.nix
     ../wlogout-new.nix
+    ./waybar.nix
+    ./wofi.nix
+    ./fish.nix
+    ./cursor.nix
   ];
 
   # Базовые пакеты
