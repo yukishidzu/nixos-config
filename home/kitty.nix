@@ -5,6 +5,14 @@
     shellIntegration.enableFishIntegration = true;
     font.name = "JetBrainsMono Nerd Font";
     font.size = 13;
+
+    # Use extraConfig for key mappings per kitty.conf syntax
+    extraConfig = ''
+      map ctrl+shift+c copy_to_clipboard
+      map ctrl+shift+v paste_from_clipboard
+      map ctrl+shift+t new_tab
+    '';
+
     settings = {
       background = "#1e1e2e";
       foreground = "#cdd6f4";
@@ -20,12 +28,7 @@
       tab_bar_style = "powerline";
       tab_powerline_style = "slanted";
     };
-    keyBindings = {
-      "ctrl+shift+c" = "copy_to_clipboard";
-      "ctrl+shift+v" = "paste_from_clipboard";
-      "ctrl+shift+t" = "new_tab";
-    };
   };
-  # Kitty должен быть в userPackages
+
   home.packages = with pkgs; [ kitty ];
 }
