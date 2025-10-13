@@ -69,6 +69,31 @@
     };
   };
   
+  # Hypridle: auto-lock and autosuspend
+  services.hypridle = {
+    enable = true;
+    settings = {
+      general = {
+        lock_cmd = "hyprlock";
+        before_sleep_cmd = "hyprlock";
+        after_sleep_cmd = "";
+      };
+      listener = [
+        {
+          timeout = 900; # 15 min lock
+          on-timeout = "hyprlock";
+        }
+        {
+          timeout = 1800; # 30 min suspend
+          on-timeout = "systemctl suspend";
+        }
+      ];
+    };
+  };
+  
+  # Link hyprlock config
+  xdg.configFile."hypr/hyprlock.conf".source = ./hyprlock.conf;
+
   home.packages = with pkgs; [ 
     grim slurp wl-clipboard swww wofi nautilus kitty
     swappy cliphist brightnessctl playerctl
