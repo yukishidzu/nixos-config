@@ -28,7 +28,6 @@
     useDHCP = false;
   };
 
-  # Перенесены параметры sysctl в boot.kernel.sysctl
   boot.kernel.sysctl = {
     "net.core.default_qdisc" = "fq_codel";
     "net.ipv4.tcp_congestion_control" = "bbr";
@@ -91,6 +90,10 @@
     xwayland.enable = true;
   };
 
+  # Enable hyprlock at system level and PAM for unlocking
+  programs.hyprlock.enable = true;
+  security.pam.services.hyprlock = {};
+
   programs.waybar.enable = true;
 
   services.greetd = {
@@ -113,6 +116,9 @@
     polkit_gnome xdg-utils xdg-user-dirs
     qt5.qtwayland qt6.qtwayland libsForQt5.qt5ct qt6Packages.qt6ct
     ffmpeg-full
+    hyprlock
+    wlogout
+    hypridle
   ];
 
   environment.sessionVariables = {
