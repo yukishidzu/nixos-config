@@ -3,83 +3,22 @@
   wayland.windowManager.hyprland = {
     enable = true;
     settings = {
-      # exec-once without lock-on-login (handled by hypridle)
       exec-once = [
         "swww init"
         "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
         "wl-paste --type text --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
       ];
-      # Append our binds without self-referencing the option to avoid recursion
       bind = lib.mkAfter [
         "SUPER, ESC, exec, wlogout -p layer-shell"
-        "SUPER, L, exec, hyprlock"
       ];
     };
   };
 
-  # Hypridle for lock-on-login and idle handling
-  services.hypridle = {
-    enable = true;
-    settings = {
-      general = {
-        lock_cmd = "hyprlock";
-        before_sleep_cmd = "hyprlock";
-      };
-      listener = [
-        { timeout = 1;    on-timeout = "hyprlock"; }
-        { timeout = 900;  on-timeout = "hyprlock"; }
-        { timeout = 1800; on-timeout = "systemctl suspend"; }
-      ];
-    };
-  };
+  # Полностью отключаем hypridle, чтобы исключить влияние на блокировку
+  services.hypridle.enable = false;
 
-  # Hyprlock Catppuccin Mocha styling
-  xdg.configFile."hypr/hyprlock.conf".text = ''
-    background {
-      blur_passes = 4
-      blur_size = 8
-      brightness = 0.65
-    }
-    general {
-      grace = 2
-      hide_cursor = true
-      ignore_empty_input = true
-      fade_in = 1
-      fade_out = 1
-    }
-    input-field {
-      size = 320, 50
-      outline_thickness = 2
-      rounding = 12
-      inner_color = rgba(49,50,68,0.85)
-      outer_color = rgba(137,180,250,0.6)
-      font_family = JetBrainsMono Nerd Font
-      font_size = 15
-      placeholder_text = <i>Введите пароль...</i>
-      fail_text = <b>Неверный пароль</b>
-      position = 0, -80
-      capslock_color = rgba(249,226,175,0.85)
-    }
-    label {
-      text = cmd[update:1000] echo "$(date +"%H:%M")"
-      font_size = 68
-      font_family = JetBrainsMono Nerd Font
-      color = rgba(205,214,244,1.0)
-      position = 0,-160
-    }
-    label {
-      text = cmd[update:5000] echo "$(date +"%A, %d %B %Y")"
-      font_size = 17
-      font_family = JetBrainsMono Nerd Font
-      color = rgba(166,173,200,1.0)
-      position = 0,-110
-    }
-    label {
-      text = Caps: $CAPS
-      font_size = 13
-      color = rgba(249,226,175,0.85)
-      position = 0, 10
-    }
-  '';
+  # Удаляем hyprlock конфигурацию, оставляя файл пустым (или вовсе без упоминания)
+  # Здесь удаляем ранее созданный файл-конфиг, задав пустой текст (HM удалит линк)
+  xdg.configFile."hypr/hyprlock.conf".text = "";
 }
