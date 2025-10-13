@@ -78,17 +78,9 @@
         };
       };
 
-      # Dev shell without non-derivation entries
       devShells.${system}.default = pkgs.mkShell {
         name = "nixos-config-dev";
-        packages = with pkgs; [
-          nixpkgs-fmt
-          nil
-          git
-          just
-          nix-tree
-          nix-du
-        ];
+        packages = with pkgs; [ nixpkgs-fmt nil git just nix-tree nix-du ];
         shellHook = ''
           echo "Dev shell ready: nixpkgs-fmt, nil, git, just, nix-tree, nix-du"
           echo "Run: nix fmt .   |   nix flake check"
