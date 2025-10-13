@@ -16,6 +16,7 @@ in
   # Базовые пакеты
   home.packages =
     (with pkgs; [
+      firefox
       telegram-desktop
       vlc
       file-roller
