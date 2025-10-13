@@ -9,7 +9,7 @@ in
 {
   # Импорт модулей
   imports = [
-    ../hyprland-new.nix
+    ./hyprland.nix
     ../wlogout-new.nix
     ./waybar.nix
     ./wofi.nix
