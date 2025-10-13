@@ -14,7 +14,4 @@
   
   # Включить Home Manager
   programs.home-manager.enable = true;
-  
-  # Разрешить unfree пакеты
-  nixpkgs.config.allowUnfree = true;
 }
