@@ -16,6 +16,7 @@ in
     ./fish.nix
     ./cursor.nix
     ./autostart-terminal.nix
+    ./kitty.nix
   ];
 
   # Базовые пакеты
@@ -31,6 +32,7 @@ in
       rustc
       cargo
       go
+      kitty
     ])
     ++ (opt hasSpotify [ pkgs.spotify ])
     ++ (opt hasCursor [ pkgs-unstable.cursor ])
