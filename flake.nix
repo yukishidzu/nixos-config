@@ -70,7 +70,7 @@
                 useGlobalPkgs = true;
                 useUserPackages = true;
                 extraSpecialArgs = { inherit inputs pkgs-unstable; };
-                users.yukishidzu = import ./home.nix;
+                users.yukishidzu = import ./home;
                 backupFileExtension = "backup";
               };
             }
