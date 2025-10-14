@@ -17,8 +17,8 @@
   # Hardware video acceleration
   hardware.graphics = {
     enable = true;
-    driSupport = true;
-    driSupport32Bit = true;
+    # driSupport and driSupport32Bit options were removed in NixOS 25.05
+    # They are now enabled automatically when hardware.graphics.enable = true
     
     extraPackages = with pkgs; [
       # Intel
