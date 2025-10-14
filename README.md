@@ -1,16 +1,16 @@
 # 🚀 Yukishidzu's NixOS Configuration
 
-Современная и оптимизированная конфигурация NixOS с красивым интерфейсом и множеством полезных утилит.
+Чистая, модульная и оптимизированная конфигурация NixOS для комфортной работы с красивым интерфейсом.
 
 ## ✨ Особенности
 
 - **🎨 Красивый интерфейс**: Hyprland + Catppuccin Mocha тема
-- **🔧 Оптимизированная производительность**: Gamemode, оптимизированные настройки ядра
-- **🎮 Готовность к играм**: Steam, Wine, эмуляторы
-- **💻 Разработка**: Python, Node.js, Rust, Go, Java, C/C++
-- **📱 Современные приложения**: Cursor, Telegram, Discord, Spotify
-- **🖼️ Красивые утилиты**: EWW виджеты, анимированные обои, скриншоты
-- **🔒 Безопасность**: AppArmor, аудит, защита от Meltdown/Spectre
+- **🔧 Оптимизированная производительность**: Оптимизированные настройки ядра и системы
+- **💻 Разработка**: Базовые инструменты разработки (Git, Docker, языки программирования)
+- **📱 Современные приложения**: Cursor, Telegram, Firefox, VLC
+- **🖼️ Красивые утилиты**: Waybar, Wofi, скриншоты, анимированные обои
+- **🔒 Безопасность**: AppArmor, audit, безопасные настройки sudo
+- **📦 Модульность**: Легко расширяемая структура с опциональными модулями
 
 ## 🛠️ Установленные приложения
 
@@ -18,26 +18,21 @@
 - **Cursor** - современный редактор кода
 - **Telegram Desktop** - мессенджер
 - **Firefox** - веб-браузер
-- **Spotify** - музыкальный сервис
+- **VLC** - медиаплеер
 
 ### Разработка
-- **VSCodium** - редактор кода
 - **Git** - система контроля версий
 - **Docker** - контейнеризация
-- **Python, Node.js, Rust, Go, Java, C/C++**
-
-### Игры
-- **Steam** - игровая платформа
-- **Lutris** - менеджер игр
-- **Wine** - совместимость с Windows
-- **Эмуляторы**: Dolphin, PCSX2, RetroArch
+- **Python, Node.js, Rust, Go** - языки программирования
+- **GCC, Clang** - компиляторы
 
 ### Утилиты
-- **EWW** - виджеты для Wayland
+- **Waybar** - панель состояния
+- **Wofi** - launcher
 - **Swww** - анимированные обои
 - **Grim + Slurp** - скриншоты
-- **Wf-recorder** - запись экрана
-- **Waybar** - панель состояния
+- **Kitty** - терминал
+- **Fish** - современная оболочка
 
 ## 🎨 Темы и внешний вид
 
@@ -128,23 +123,35 @@ psensor
 nixos-config/
 ├── configuration.nix          # Основная конфигурация
 ├── flake.nix                 # Flake конфигурация
-├── home.nix                  # Home Manager конфигурация
+├── hardware-configuration.nix # Аппаратная конфигурация
 ├── modules/                  # Модули системы
+│   ├── core/                # Базовая система
+│   │   ├── boot.nix         # Загрузчик и ядро
+│   │   ├── networking.nix    # Сеть и firewall
+│   │   ├── users.nix        # Пользователи
+│   │   └── localization.nix # Локализация
 │   ├── desktop/             # Desktop окружение
-│   │   ├── hyprland.nix     # Hyprland настройки
-│   │   ├── themes.nix       # Темы и иконки
-│   │   └── ...
-│   ├── system/              # Системные модули
-│   │   ├── audio.nix        # Аудио настройки
-│   │   ├── security.nix     # Безопасность
-│   │   ├── gaming.nix       # Игры
-│   │   └── ...
-│   └── users/               # Пользователи
-├── home/                     # Home Manager модули
-│   ├── hyprland/            # Hyprland конфигурация
+│   │   ├── hyprland.nix     # Hyprland
+│   │   ├── fonts.nix        # Шрифты
+│   │   └── themes.nix       # Темы
+│   ├── services/            # Сервисы
+│   │   ├── audio.nix        # PipeWire
+│   │   └── bluetooth.nix    # Bluetooth
+│   ├── system/              # Системные настройки
+│   │   ├── nix.nix          # Nix конфигурация
+│   │   ├── security.nix      # Безопасность
+│   │   ├── power.nix        # Питание
+│   │   └── packages.nix     # Системные пакеты
+└── development/             # Dev tools
+    └── default.nix          # Базовые инструменты
+├── home/                     # Home Manager
+│   ├── default.nix          # Главный файл
+│   ├── desktop/             # Desktop конфигурация
 │   ├── programs/            # Программы
 │   └── shell/               # Оболочка
-└── hardware-configuration.nix # Аппаратная конфигурация
+└── docs/                    # Документация
+    ├── MODULES.md           # Описание модулей
+    └── TROUBLESHOOTING.md   # Устранение неполадок
 ```
 
 ## 🐛 Устранение неполадок

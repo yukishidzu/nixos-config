@@ -1,17 +1,10 @@
 { config, lib, pkgs, ... }:
 {
-  # Настройки sudo -- оставляем только sudo = { ... } без верхнего wheelNeedsPassword
+  # Настройки sudo (безопасные)
   security = {
     sudo = {
       wheelNeedsPassword = true;
-      extraRules = [
-        {
-          users = [ "yukishidzu" ];
-          commands = [
-            { command = "ALL"; options = [ "NOPASSWD" ]; }
-          ];
-        }
-      ];
+      execWheelOnly = true;
     };
     
     # Polkit для аутентификации
@@ -40,9 +33,7 @@
     protectKernelImage = true;
     lockKernelModules = false;
 
-    # virtualisation, файрвол и fail2ban по умолчанию off
-    virtualisation.docker.enable = false;
-    virtualisation.libvirtd.enable = false;
+    # virtualisation отключены по умолчанию (управляются через development модуль)
     # ufw.enable = true;
     # fail2ban.enable = true;
   };

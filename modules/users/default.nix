@@ -19,13 +19,6 @@
       "dialout"
       "scanner"
       "lp"
-      "cdrom"
-      "tape"
-      "adm"
-      "disk"
-      "kmem"
-      "sys"
-      "tty"
     ];
     createHome = true;
     home = "/home/yukishidzu";
@@ -37,16 +30,9 @@
   # Дополнительные настройки для пользователей
   users.defaultUserShell = pkgs.fish;
   
-  # Настройки для sudo
-  security.sudo.extraRules = [
-    {
-      users = [ "yukishidzu" ];
-      commands = [
-        {
-          command = "ALL";
-          options = [ "NOPASSWD" ];
-        }
-      ];
-    }
-  ];
+  # Настройки для sudo (безопасные)
+  security.sudo = {
+    wheelNeedsPassword = true;
+    execWheelOnly = true;
+  };
 }

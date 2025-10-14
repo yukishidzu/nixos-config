@@ -40,7 +40,6 @@
     kernelParams = [ 
       "quiet" 
       "splash" 
-      "mitigations=off"  # Disable CPU mitigations for better performance (security trade-off)
     ];
   };
 

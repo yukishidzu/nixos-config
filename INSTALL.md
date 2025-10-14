@@ -58,11 +58,8 @@ sudo usermod -aG wheel yukishidzu
 
 2. **Настройка sudo**:
 ```bash
-# Редактируем sudoers
-sudo visudo
-
-# Добавляем строку:
-yukishidzu ALL=(ALL) NOPASSWD:ALL
+# Пользователь уже настроен в конфигурации
+# Sudo требует пароль для безопасности
 ```
 
 ### Настройка Hyprland
@@ -143,52 +140,6 @@ echo "style=adwaita-dark" > ~/.config/qt5ct/qt5ct.conf
 echo "style=adwaita-dark" > ~/.config/qt6ct/qt6ct.conf
 ```
 
-## 🎮 Настройка игр
-
-### Steam
-
-1. **Установка Steam**:
-```bash
-# Steam уже установлен через конфигурацию
-# Запускаем Steam
-steam
-```
-
-2. **Настройка Proton**:
-- В Steam: Settings → Steam Play
-- Включаем "Enable Steam Play for supported titles"
-- Включаем "Enable Steam Play for all other titles"
-
-### Wine
-
-1. **Проверка Wine**:
-```bash
-wine --version
-winecfg
-```
-
-2. **Настройка Wine**:
-```bash
-# Создаем префикс для 64-битных приложений
-WINEPREFIX=~/.wine64 winecfg
-
-# Создаем префикс для 32-битных приложений
-WINEPREFIX=~/.wine32 WINEARCH=win32 winecfg
-```
-
-### Gamemode
-
-1. **Проверка Gamemode**:
-```bash
-gamemoded --version
-```
-
-2. **Автозапуск Gamemode**:
-```bash
-# Gamemode уже настроен для автозапуска
-# Проверяем статус
-systemctl --user status gamemoded
-```
 
 ## 💻 Настройка разработки
 

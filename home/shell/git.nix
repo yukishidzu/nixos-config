@@ -10,7 +10,7 @@
       init.defaultBranch = "main";
       pull.rebase = true;
       push.autoSetupRemote = true;
-      core.editor = "code --wait";
+      core.editor = "cursor --wait";
       merge.tool = "vscode";
       
       # Better diff algorithm

@@ -1,17 +1,19 @@
 { config, lib, pkgs, ... }:
 
 {
-  # Development tools available system-wide
+  # Базовые инструменты разработки
   environment.systemPackages = with pkgs; [
     # Version control
     git
     git-lfs
+    gh
     
     # Build tools
     gcc
     clang
     cmake
     pkg-config
+    gnumake
     
     # Archive tools
     wget
@@ -41,7 +43,7 @@
     zlib
   ];
   
-  # Enable Docker for development
+  # Docker для контейнеризации
   virtualisation.docker = {
     enable = true;
     enableOnBoot = true;
@@ -51,10 +53,6 @@
     };
   };
   
-  # Enable Podman as Docker alternative
-  virtualisation.podman = {
-    enable = true;
-    dockerCompat = true;
-    defaultNetwork.settings.dns_enabled = true;
-  };
+  # Добавляем пользователя в группу docker
+  users.users.yukishidzu.extraGroups = [ "docker" ];
 }
