@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Usage: ./update-fast-app cursor 0.49.1
+# - Prefetches sha256 for app URL
+# - Updates version and hash in fast-apps.nix
+# - Commits the change
+
+APP=${1:-}
+VER=${2:-}
+
+if [[ -z "$APP" || -z "$VER" ]]; then
+  echo "Usage: $0 <app> <version>" >&2
+  exit 1
+fi
+
+ROOT_DIR=$(git rev-parse --show-toplevel)
+FILE="$ROOT_DIR/fast-apps.nix"
+
+if [[ "$APP" != "cursor" ]]; then
+  echo "Only 'cursor' is supported for now" >&2
+  exit 1
+fi
+
+URL_BASE="https://download.cursor.sh/linux/appImage/x64"
+URL="$URL_BASE"
+
+echo "Prefetching sha256 for $URL ..."
+HASH=$(nix-prefetch-url --type sha256 "$URL")
+
+# Update version and hash in fast-apps.nix
+sed -i -E "s/(version = \")([^"]+)(\";)/\\1${VER}\\3/" "$FILE"
+sed -i -E "s/(hash    = \"sha256-)[^\"]+(\";)/\\1${HASH}\\2/" "$FILE"
+
+git add "$FILE"
+if git diff --cached --quiet; then
+  echo "No changes to commit." >&2
+else
+  git commit -m "chore(fast-apps): bump cursor to ${VER} (sha256-${HASH})"
+  echo "Updated cursor to ${VER} with sha256-${HASH}" >&2
+fi
