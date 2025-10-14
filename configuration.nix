@@ -3,8 +3,11 @@
 {
   imports = [ 
     ./hardware-configuration.nix
-    ./modules/cursor.nix
+    ./fast-apps.nix
   ];
+
+  # Enable fast-updating apps
+  fastApps.enable = true;
 
   boot = {
     loader = {
@@ -91,7 +94,6 @@
     xwayland.enable = true;
   };
 
-  # Enable hyprlock at system level and PAM for unlocking
   programs.hyprlock.enable = true;
   security.pam.services.hyprlock = {};
 
