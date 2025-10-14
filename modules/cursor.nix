@@ -37,7 +37,7 @@ EOF
     };
   };
 
-  # Script to update Cursor AppImage
+  # Script to update Cursor AppImage using official API
   update-cursor-appimage = pkgs.writeShellScriptBin "update-cursor-appimage" ''
     #!/usr/bin/env bash
     set -euo pipefail
@@ -45,17 +45,66 @@ EOF
     APPDIR="$HOME/Applications"
     mkdir -p "$APPDIR"
     
-    echo "Checking for latest Cursor version..."
+    echo "Checking for latest Cursor version using official API..."
     
-    # Get the latest version info from Cursor's official download page
-    LATEST_URL="https://downloader.cursor.sh/linux/appImage/x64"
+    # Get download URL from official Cursor API
+    API_URL="https://www.cursor.com/api/download?platform=linux-x64&releaseTrack=stable"
+    TEMP_JSON=$(mktemp)
+    
+    echo "Fetching download information..."
+    if ! ${pkgs.curl}/bin/curl -sL "$API_URL" -o "$TEMP_JSON"; then
+      echo "Failed to fetch download information from Cursor API."
+      echo "Please check your internet connection or try again later."
+      rm -f "$TEMP_JSON"
+      exit 1
+    fi
+    
+    # Extract download URL using multiple methods for reliability
+    DOWNLOAD_URL=""
+    
+    # Try with jq if available (most reliable)
+    if command -v ${pkgs.jq}/bin/jq >/dev/null 2>&1; then
+      DOWNLOAD_URL=$(${pkgs.jq}/bin/jq -r '.downloadUrl // empty' "$TEMP_JSON" 2>/dev/null || echo "")
+    fi
+    
+    # Fallback: use grep and sed for JSON parsing
+    if [[ -z "$DOWNLOAD_URL" ]]; then
+      echo "Using fallback JSON parsing..."
+      DOWNLOAD_URL=$(grep -o '"downloadUrl":"[^"]*"' "$TEMP_JSON" 2>/dev/null | sed 's/"downloadUrl":"//' | sed 's/"$//' || echo "")
+    fi
+    
+    # Alternative fallback: try python3 json parsing
+    if [[ -z "$DOWNLOAD_URL" ]] && command -v ${pkgs.python3}/bin/python3 >/dev/null 2>&1; then
+      echo "Using Python JSON parsing..."
+      DOWNLOAD_URL=$(${pkgs.python3}/bin/python3 -c "
+import json, sys
+try:
+    with open('$TEMP_JSON', 'r') as f:
+        data = json.load(f)
+        print(data.get('downloadUrl', ''))
+except:
+    pass
+" 2>/dev/null || echo "")
+    fi
+    
+    rm -f "$TEMP_JSON"
+    
+    if [[ -z "$DOWNLOAD_URL" ]]; then
+      echo "Failed to parse download URL from API response."
+      echo "You can manually download from https://cursor.com and place the AppImage in $APPDIR"
+      exit 1
+    fi
+    
+    echo "Download URL: $DOWNLOAD_URL"
+    echo "Downloading latest Cursor AppImage..."
+    
     TEMP_FILE=$(mktemp)
     
-    echo "Downloading latest Cursor AppImage..."
-    if curl -L -f "$LATEST_URL" -o "$TEMP_FILE"; then
+    if ${pkgs.curl}/bin/curl -L --fail "$DOWNLOAD_URL" -o "$TEMP_FILE" --progress-bar; then
       chmod +x "$TEMP_FILE"
       
       # Remove old versions
+      echo "Cleaning up old versions..."
       find "$APPDIR" -name "Cursor-*.AppImage" -delete 2>/dev/null || true
       
       # Move new version
@@ -63,9 +112,12 @@ EOF
       mv "$TEMP_FILE" "$APPDIR/$NEW_NAME"
       
       echo "Successfully updated Cursor to latest version: $NEW_NAME"
+      echo "File saved to: $APPDIR/$NEW_NAME"
       echo "Run 'cursor' to start the updated version."
     else
-      echo "Failed to download Cursor AppImage. Please check your internet connection."
+      echo "Failed to download Cursor AppImage from: $DOWNLOAD_URL"
+      echo "Please check your internet connection or try again later."
+      echo "You can also manually download from https://cursor.com"
       rm -f "$TEMP_FILE"
       exit 1
     fi
@@ -85,6 +137,10 @@ EOF
       echo "Cursor AppImage not found in $APPDIR."
       echo "Run 'update-cursor-appimage' to download the latest version."
       echo "Or manually download from https://cursor.com and place it in $APPDIR"
+      echo ""
+      echo "After manual download, make sure to:"
+      echo "  1. Make it executable: chmod +x ~/Applications/Cursor-*.AppImage"
+      echo "  2. Name it properly: Cursor-YYYYMMDD-HHMMSS.AppImage"
       exit 1
     fi
     
@@ -114,6 +170,10 @@ in {
     update-cursor-appimage
     cursor-runner
     cursor-fallback
+    
+    # Required utilities for download script
+    pkgs.curl
+    pkgs.jq  # For reliable JSON parsing
     
     # Optional utilities
     cursor-free-vip 
