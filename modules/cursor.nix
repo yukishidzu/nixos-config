@@ -13,7 +13,7 @@ let
       owner = "yeongpin";
       repo = "cursor-free-vip";
       rev = "v${version}";
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # TODO: replace after nix suggests actual hash
+      hash = "sha256-rF6Yo4eCWURqd4TaEuzFqW46UHh1Sh5Bytv45kSBNeY=";
     };
 
     nativeBuildInputs = with pkgs; [ python3 ];
