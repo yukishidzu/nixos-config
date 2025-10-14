@@ -37,8 +37,63 @@ EOF
     };
   };
 
-  # Fallback runner if code-cursor is not available in current channel
-  cursor-fallback = pkgs.writeShellScriptBin "cursor" ''
+  # Script to update Cursor AppImage
+  update-cursor-appimage = pkgs.writeShellScriptBin "update-cursor-appimage" ''
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    APPDIR="$HOME/Applications"
+    mkdir -p "$APPDIR"
+    
+    echo "Checking for latest Cursor version..."
+    
+    # Get the latest version info from Cursor's official download page
+    LATEST_URL="https://downloader.cursor.sh/linux/appImage/x64"
+    TEMP_FILE=$(mktemp)
+    
+    echo "Downloading latest Cursor AppImage..."
+    if curl -L -f "$LATEST_URL" -o "$TEMP_FILE"; then
+      chmod +x "$TEMP_FILE"
+      
+      # Remove old versions
+      find "$APPDIR" -name "Cursor-*.AppImage" -delete 2>/dev/null || true
+      
+      # Move new version
+      NEW_NAME="Cursor-$(date +%Y%m%d-%H%M%S).AppImage"
+      mv "$TEMP_FILE" "$APPDIR/$NEW_NAME"
+      
+      echo "Successfully updated Cursor to latest version: $NEW_NAME"
+      echo "Run 'cursor' to start the updated version."
+    else
+      echo "Failed to download Cursor AppImage. Please check your internet connection."
+      rm -f "$TEMP_FILE"
+      exit 1
+    fi
+  '';
+
+  # Enhanced runner that finds the latest AppImage
+  cursor-runner = pkgs.writeShellScriptBin "cursor" ''
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    APPDIR="$HOME/Applications"
+    
+    # Find the most recent Cursor AppImage
+    appimage=$(find "$APPDIR" -maxdepth 1 -name "Cursor-*.AppImage" -type f 2>/dev/null | sort | tail -n 1)
+    
+    if [[ -z "$appimage" ]]; then
+      echo "Cursor AppImage not found in $APPDIR."
+      echo "Run 'update-cursor-appimage' to download the latest version."
+      echo "Or manually download from https://cursor.com and place it in $APPDIR"
+      exit 1
+    fi
+    
+    echo "Starting Cursor: $(basename "$appimage")"
+    exec ${pkgs.appimage-run}/bin/appimage-run "$appimage" "$@"
+  '';
+
+  # Legacy fallback for compatibility
+  cursor-fallback = pkgs.writeShellScriptBin "cursor-fallback" ''
     set -euo pipefail
     APPDIR="$HOME/Applications"
     appimage=$(find "$APPDIR" -maxdepth 1 -iname 'Cursor-*.AppImage' -print -quit || true)
@@ -50,12 +105,22 @@ EOF
   '';
 
 in {
-  # Single definition: build the final package list once
-  environment.systemPackages =
-    let
-      cursorList = if cursorPkg != null then [ cursorPkg ] else [ cursor-fallback ];
-    in
-      cursorList ++ [ cursor-free-vip pkgs.python3 pkgs.google-chrome pkgs.chromedriver ];
+  # Always include AppImage support and updater
+  environment.systemPackages = [
+    # AppImage support
+    pkgs.appimage-run
+    
+    # Cursor management scripts
+    update-cursor-appimage
+    cursor-runner
+    cursor-fallback
+    
+    # Optional utilities
+    cursor-free-vip 
+    pkgs.python3 
+    pkgs.google-chrome 
+    pkgs.chromedriver
+  ] ++ (if cursorPkg != null then [ cursorPkg ] else []);
 
   # Default config file (can be overridden in /etc if needed)
   environment.etc."cursor-free-vip/config.ini" = {
