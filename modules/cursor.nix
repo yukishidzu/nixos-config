@@ -74,16 +74,18 @@ EOF
     # Alternative fallback: try python3 json parsing
     if [[ -z "$DOWNLOAD_URL" ]]; then
       echo "Using Python JSON parsing..."
-      DOWNLOAD_URL=$(${pkgs.python3}/bin/python3 - "$TEMP_JSON" <<'PY'
+      DOWNLOAD_URL=$(${pkgs.python3}/bin/python3 - <<'PY'
 import json, sys
 try:
-    with open(sys.argv[1], 'r') as f:
-        data = json.load(f)
-        print(data.get('downloadUrl', ''))
+    import pathlib
+    p = pathlib.Path("${TMP_JSON:-}")
+    path = p.read_text() if p.exists() else sys.stdin.read()
+    data = json.loads(path)
+    print(data.get('downloadUrl', ''))
 except Exception:
     pass
 PY
-)
+ < "$TEMP_JSON")
     fi
     
     rm -f "$TEMP_JSON"
