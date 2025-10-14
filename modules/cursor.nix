@@ -62,10 +62,8 @@ EOF
     # Extract download URL using multiple methods for reliability
     DOWNLOAD_URL=""
     
-    # Try with jq if available (most reliable)
-    if command -v ${pkgs.jq}/bin/jq >/dev/null 2>&1; then
-      DOWNLOAD_URL=$(${pkgs.jq}/bin/jq -r '.downloadUrl // empty' "$TEMP_JSON" 2>/dev/null || echo "")
-    fi
+    # Try with jq (bundled) - most reliable
+    DOWNLOAD_URL=$(${pkgs.jq}/bin/jq -r '.downloadUrl // empty' "$TEMP_JSON" 2>/dev/null || echo "")
     
     # Fallback: use grep and sed for JSON parsing
     if [[ -z "$DOWNLOAD_URL" ]]; then
@@ -74,17 +72,18 @@ EOF
     fi
     
     # Alternative fallback: try python3 json parsing
-    if [[ -z "$DOWNLOAD_URL" ]] && command -v ${pkgs.python3}/bin/python3 >/dev/null 2>&1; then
+    if [[ -z "$DOWNLOAD_URL" ]]; then
       echo "Using Python JSON parsing..."
-      DOWNLOAD_URL=$(${pkgs.python3}/bin/python3 -c "
+      DOWNLOAD_URL=$(${pkgs.python3}/bin/python3 - "$TEMP_JSON" <<'PY'
 import json, sys
 try:
-    with open('$TEMP_JSON', 'r') as f:
+    with open(sys.argv[1], 'r') as f:
         data = json.load(f)
         print(data.get('downloadUrl', ''))
-except:
+except Exception:
     pass
-" 2>/dev/null || echo "")
+PY
+)
     fi
     
     rm -f "$TEMP_JSON"
