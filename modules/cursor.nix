@@ -37,25 +37,25 @@ EOF
     };
   };
 
-in {
-  environment.systemPackages = builtins.concatLists [
-    (if cursorPkg != null then [ cursorPkg ] else [ ])
-    [ cursor-free-vip pkgs.python3 pkgs.google-chrome pkgs.chromedriver ]
-  ];
-
   # Fallback runner if code-cursor is not available in current channel
-  environment.systemPackages = (if cursorPkg == null then [
-    (pkgs.writeShellScriptBin "cursor" ''
-      set -euo pipefail
-      APPDIR="$HOME/Applications"
-      appimage=$(find "$APPDIR" -maxdepth 1 -iname 'Cursor-*.AppImage' -print -quit || true)
-      if [[ -z "${appimage:-}" ]]; then
-        echo "Cursor AppImage not found in $APPDIR. Download it from cursor.com and place it there." >&2
-        exit 1
-      fi
-      exec ${pkgs.appimage-run}/bin/appimage-run "$appimage" "$@"
-    '')
-  ] else [ ]) ++ (config.environment.systemPackages or []);
+  cursor-fallback = pkgs.writeShellScriptBin "cursor" ''
+    set -euo pipefail
+    APPDIR="$HOME/Applications"
+    appimage=$(find "$APPDIR" -maxdepth 1 -iname 'Cursor-*.AppImage' -print -quit || true)
+    if [[ -z "${appimage:-}" ]]; then
+      echo "Cursor AppImage not found in $APPDIR. Download it from cursor.com and place it there." >&2
+      exit 1
+    fi
+    exec ${pkgs.appimage-run}/bin/appimage-run "$appimage" "$@"
+  '';
+
+in {
+  # Single definition: build the final package list once
+  environment.systemPackages =
+    let
+      cursorList = if cursorPkg != null then [ cursorPkg ] else [ cursor-fallback ];
+    in
+      cursorList ++ [ cursor-free-vip pkgs.python3 pkgs.google-chrome pkgs.chromedriver ];
 
   # Default config file (can be overridden in /etc if needed)
   environment.etc."cursor-free-vip/config.ini" = {
